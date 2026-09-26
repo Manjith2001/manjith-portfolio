@@ -100,6 +100,9 @@ class _ProjectsSectionState extends State<ProjectsSection> {
           LayoutBuilder(
             builder: (context, constraints) {
               final spacing = 20.0;
+              final totalSpacing = spacing * (crossAxisCount - 1);
+              final itemWidth =
+                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
 
               if (filteredProjects.isEmpty) {
                 return Container(
@@ -109,45 +112,19 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                 );
               }
 
-              // Chunk projects into symmetrical rows based on crossAxisCount
-              final List<List<ProjectModel>> rows = [];
-              for (var i = 0; i < filteredProjects.length; i += crossAxisCount) {
-                rows.add(filteredProjects.sublist(
-                  i,
-                  (i + crossAxisCount > filteredProjects.length)
-                      ? filteredProjects.length
-                      : i + crossAxisCount,
-                ));
-              }
-
-              return Column(
-                children: [
-                  for (int r = 0; r < rows.length; r++) ...[
-                    if (r > 0) const SizedBox(height: 24),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (int c = 0; c < rows[r].length; c++) ...[
-                            if (c > 0) SizedBox(width: spacing),
-                            Expanded(
-                              child: ProjectCard(
-                                project: rows[r][c],
-                                onSelect: () => widget.navController
-                                    .openProjectDetail(rows[r][c]),
-                              ),
-                            ),
-                          ],
-                          // Fill remaining slots in last row to maintain equal proportions
-                          for (int k = 0; k < crossAxisCount - rows[r].length; k++) ...[
-                            SizedBox(width: spacing),
-                            const Expanded(child: SizedBox.shrink()),
-                          ],
-                        ],
-                      ),
+              return Wrap(
+                spacing: spacing,
+                runSpacing: 24,
+                children: filteredProjects.map((project) {
+                  return SizedBox(
+                    width: itemWidth,
+                    child: ProjectCard(
+                      project: project,
+                      onSelect: () =>
+                          widget.navController.openProjectDetail(project),
                     ),
-                  ],
-                ],
+                  );
+                }).toList(),
               );
             },
           ),

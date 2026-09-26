@@ -122,17 +122,28 @@ class AppFooter extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.card,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.45),
-                  width: 1,
-                ),
+                border: Border.all(color: AppColors.borderLight, width: 1),
               ),
-              child: Text(
-                'MH',
-                style: AppTypography.h3(
-                  size: 16,
-                  weight: FontWeight.w800,
-                  color: Colors.white,
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'MH',
+                      style: AppTypography.h3(
+                        size: 16,
+                        weight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '.',
+                      style: AppTypography.h3(
+                        size: 16,
+                        weight: FontWeight.w800,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

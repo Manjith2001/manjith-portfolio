@@ -40,47 +40,23 @@ class SkillsMatrixSection extends StatelessWidget {
           ),
           const SizedBox(height: 36),
 
-          // Cards Grid - 100% Symmetric Row Heights
+          // Cards Grid
           LayoutBuilder(
             builder: (context, constraints) {
               final spacing = 20.0;
-              final categories = SkillsData.categories;
+              final totalSpacing = spacing * (crossAxisCount - 1);
+              final itemWidth =
+                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
 
-              // Chunk categories into symmetrical rows based on crossAxisCount
-              final List<List<SkillCategoryModel>> rows = [];
-              for (var i = 0; i < categories.length; i += crossAxisCount) {
-                rows.add(categories.sublist(
-                  i,
-                  (i + crossAxisCount > categories.length)
-                      ? categories.length
-                      : i + crossAxisCount,
-                ));
-              }
-
-              return Column(
-                children: [
-                  for (int r = 0; r < rows.length; r++) ...[
-                    if (r > 0) const SizedBox(height: 20),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (int c = 0; c < rows[r].length; c++) ...[
-                            if (c > 0) SizedBox(width: spacing),
-                            Expanded(
-                              child: _SkillCategoryCard(category: rows[r][c]),
-                            ),
-                          ],
-                          // Fill remaining slots in last row to maintain symmetry
-                          for (int k = 0; k < crossAxisCount - rows[r].length; k++) ...[
-                            SizedBox(width: spacing),
-                            const Expanded(child: SizedBox.shrink()),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
+              return Wrap(
+                spacing: spacing,
+                runSpacing: 20,
+                children: SkillsData.categories.map((cat) {
+                  return SizedBox(
+                    width: itemWidth,
+                    child: _SkillCategoryCard(category: cat),
+                  );
+                }).toList(),
               );
             },
           ),
@@ -128,28 +104,29 @@ class _SkillCategoryCardState extends State<_SkillCategoryCard> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Red accent top border
-                Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primary.withValues(alpha: _isHovered ? 1.0 : 0.6),
-                        AppColors.primaryLight.withValues(alpha: _isHovered ? 0.8 : 0.3),
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
+            // Red accent top border
+            Container(
+              height: 3,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withValues(alpha: _isHovered ? 1.0 : 0.6),
+                    AppColors.primaryLight.withValues(alpha: _isHovered ? 0.8 : 0.3),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 22, 22, 0),
-                  child: SizedBox(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Top Row - Symmetric 44px height
+                  SizedBox(
                     height: 44,
                     child: Row(
                       children: [
@@ -181,25 +158,22 @@ class _SkillCategoryCardState extends State<_SkillCategoryCard> {
                       ],
                     ),
                   ),
-                ),
-              ],
-            ),
-
-            // Skills Chips - Pinned to bottom for symmetry
-            Padding(
-              padding: const EdgeInsets.fromLTRB(22, 16, 22, 22),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 88),
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: cat.skills.map((skill) {
-                    return TechChip(
-                      label: skill,
-                      color: _isHovered ? AppColors.primary : null,
-                    );
-                  }).toList(),
-                ),
+                  const SizedBox(height: 18),
+                  // Skills Chips - Minimum height for symmetry
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 88),
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: cat.skills.map((skill) {
+                        return TechChip(
+                          label: skill,
+                          color: _isHovered ? AppColors.primary : null,
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

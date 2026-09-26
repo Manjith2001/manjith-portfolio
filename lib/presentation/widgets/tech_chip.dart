@@ -89,35 +89,42 @@ class _TechChipState extends State<TechChip> {
                       ]
                     : null),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (widget.icon != null) ...[
-                Icon(
-                  widget.icon,
-                  size: 13,
-                  color: widget.isSelected
-                      ? Colors.white
-                      : (_isHovered ? effectiveColor : AppColors.textMuted),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final textWidget = Text(
+                widget.label,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: AppTypography.tag(
+                  color: textColor,
+                  size: 11.5,
+                  weight: widget.isSelected
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                 ),
-                const SizedBox(width: 5),
-              ],
-              Flexible(
-                child: Text(
-                  widget.label,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: AppTypography.tag(
-                    color: textColor,
-                    size: 11.5,
-                    weight: widget.isSelected
-                        ? FontWeight.w700
-                        : FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+              );
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (widget.icon != null) ...[
+                    Icon(
+                      widget.icon,
+                      size: 13,
+                      color: widget.isSelected
+                          ? Colors.white
+                          : (_isHovered ? effectiveColor : AppColors.textMuted),
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                  if (constraints.maxWidth.isFinite)
+                    Flexible(child: textWidget)
+                  else
+                    textWidget,
+                ],
+              );
+            },
           ),
         ),
       ),

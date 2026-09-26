@@ -40,47 +40,23 @@ class TechnicalCapabilitiesSection extends StatelessWidget {
           ),
           const SizedBox(height: 36),
 
-          // Symmetrical Responsive Grid - 100% Equal Row Heights
+          // Symmetrical Responsive Grid
           LayoutBuilder(
             builder: (context, constraints) {
               final spacing = 20.0;
-              final capabilities = CapabilitiesData.capabilities;
+              final totalSpacing = spacing * (crossAxisCount - 1);
+              final itemWidth =
+                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
 
-              // Chunk capabilities into symmetrical rows based on crossAxisCount
-              final List<List<CapabilityModel>> rows = [];
-              for (var i = 0; i < capabilities.length; i += crossAxisCount) {
-                rows.add(capabilities.sublist(
-                  i,
-                  (i + crossAxisCount > capabilities.length)
-                      ? capabilities.length
-                      : i + crossAxisCount,
-                ));
-              }
-
-              return Column(
-                children: [
-                  for (int r = 0; r < rows.length; r++) ...[
-                    if (r > 0) const SizedBox(height: 20),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (int c = 0; c < rows[r].length; c++) ...[
-                            if (c > 0) SizedBox(width: spacing),
-                            Expanded(
-                              child: _CapabilityCard(capability: rows[r][c]),
-                            ),
-                          ],
-                          // Fill remaining slots in last row to maintain symmetry
-                          for (int k = 0; k < crossAxisCount - rows[r].length; k++) ...[
-                            SizedBox(width: spacing),
-                            const Expanded(child: SizedBox.shrink()),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
+              return Wrap(
+                spacing: spacing,
+                runSpacing: 20,
+                children: CapabilitiesData.capabilities.map((cap) {
+                  return SizedBox(
+                    width: itemWidth,
+                    child: _CapabilityCard(capability: cap),
+                  );
+                }).toList(),
               );
             },
           ),
@@ -134,121 +110,113 @@ class _CapabilityCardState extends State<_CapabilityCard> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Red accent top border
-                Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primary.withValues(alpha: _isHovered ? 1.0 : 0.6),
-                        AppColors.primaryLight.withValues(alpha: _isHovered ? 0.8 : 0.3),
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
+            // Red accent top border
+            Container(
+              height: 3,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withValues(alpha: _isHovered ? 1.0 : 0.6),
+                    AppColors.primaryLight.withValues(alpha: _isHovered ? 0.8 : 0.3),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Icon - Red-tinted rounded square badge
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(cap.icon, color: AppColors.primary, size: 24),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-
-                      // Subtitle Tag
-                      SizedBox(
-                        height: 18,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            cap.subtitle.toUpperCase(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.mono(
-                              color: AppColors.primary,
-                              size: 11,
-                              weight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-
-                      // Title - dynamic height instead of fixed to avoid clipping
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 48),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            cap.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.h3(
-                              size: 18,
-                              color: _isHovered ? Colors.white : AppColors.textPrimary,
-                              weight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Description - dynamic height with proper wrapping
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 60),
-                        child: Text(
-                          cap.description,
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.body(
-                            size: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
             ),
-
-            // Tags - Pinned to bottom for symmetry
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 30),
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: cap.tags.map((tag) {
-                    return TechChip(
-                      label: tag,
-                      color: _isHovered ? AppColors.primary : null,
-                    );
-                  }).toList(),
-                ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Icon - Red-tinted rounded square badge
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(cap.icon, color: AppColors.primary, size: 24),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Subtitle Tag
+                  SizedBox(
+                    height: 18,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        cap.subtitle.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.mono(
+                          color: AppColors.primary,
+                          size: 11,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Title - dynamic height instead of fixed to avoid clipping
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        cap.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.h3(
+                          size: 18,
+                          color: _isHovered ? Colors.white : AppColors.textPrimary,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Description - dynamic height with proper wrapping
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 60),
+                    child: Text(
+                      cap.description,
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.body(
+                        size: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Tags - dynamic height with proper wrapping
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 30),
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: cap.tags.map((tag) {
+                        return TechChip(
+                          label: tag,
+                          color: _isHovered ? AppColors.primary : null,
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

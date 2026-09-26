@@ -176,17 +176,28 @@ class AppNavigationBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.card,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.45),
-                  width: 1.2,
-                ),
+                border: Border.all(color: AppColors.borderLight, width: 1),
               ),
-              child: Text(
-                'MH',
-                style: AppTypography.h3(
-                  size: 18,
-                  weight: FontWeight.w800,
-                  color: Colors.white,
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'MH',
+                      style: AppTypography.h3(
+                        size: 18,
+                        weight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '.',
+                      style: AppTypography.h3(
+                        size: 18,
+                        weight: FontWeight.w800,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
