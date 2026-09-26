@@ -1,0 +1,41 @@
+name: manjith_portfolio
+description: "Premium Modern Portfolio for Manjith Hemachandran - Flutter Mobile Application Developer"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  url_launcher: ^6.3.0
+  flutter_animate: ^4.5.0
+  http: ^1.2.2
+  video_player: ^2.9.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/resume/
+    - assets/projects/bizo_diet/
+    - assets/projects/champions_diet/
+    - assets/projects/enkage/
+    - assets/projects/forma_diet/
+    - assets/projects/healthy_diet/
+    - assets/projects/nura/
+    - assets/projects/rentings/
+    - assets/projects/steamed/
+    - assets/projects/traffic_app/
+    - assets/projects/under_thirty/
+    - assets/projects/yaldiet/

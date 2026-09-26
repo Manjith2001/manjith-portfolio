@@ -1,0 +1,35 @@
+{
+    "name": "Manjith Hemachandran — Portfolio",
+    "short_name": "MH Portfolio",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0A0A0F",
+    "theme_color": "#E63946",
+    "description": "Portfolio of Manjith Hemachandran, Flutter Mobile Application Developer with 2.5+ years experience and 17+ production apps.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
