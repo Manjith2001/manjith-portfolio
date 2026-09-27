@@ -19,143 +19,138 @@ class AppNavigationBar extends StatelessWidget {
     final isScrolled = navController.isScrolled;
     final isDesktop = Responsive.isDesktop(context);
 
+    // Floating glass-morphic bar styling
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      height: isScrolled ? 68 : 84,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutQuart,
+      margin: EdgeInsets.only(
+        top: isScrolled ? 16 : 24,
+        left: Responsive.isMobile(context) ? 16 : 32,
+        right: Responsive.isMobile(context) ? 16 : 32,
+      ),
+      height: 72,
       decoration: BoxDecoration(
         color: isScrolled
-            ? AppColors.background.withValues(alpha: 0.85)
-            : Colors.transparent,
-        border: Border(
-          bottom: BorderSide(
-            color: isScrolled ? AppColors.border : Colors.transparent,
-            width: 1,
-          ),
+            ? AppColors.background.withValues(alpha: 0.7)
+            : AppColors.surface.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isScrolled
+              ? AppColors.borderLight.withValues(alpha: 0.8)
+              : AppColors.border.withValues(alpha: 0.3),
+          width: 1,
         ),
+        boxShadow: isScrolled
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ]
+            : [],
       ),
-      child: ClipRect(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: isScrolled ? 16 : 0,
-            sigmaY: isScrolled ? 16 : 0,
-          ),
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(
-                maxWidth: Responsive.maxContentWidth,
-              ),
-              padding: Responsive.horizontalPadding(context),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Logo / Monogram
-                  Flexible(child: _buildLogo(context)),
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Logo / Monogram
+                Flexible(child: _buildLogo(context)),
 
-                  // Desktop Nav Links
-                  if (isDesktop) ...[
-                    Flexible(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildNavItem(
-                              'About',
-                              () => navController.scrollToSection(
-                                navController.heroKey,
-                              ),
-                            ),
-                            _buildNavItem(
-                              'Clients',
-                              () => navController.scrollToSection(
-                                navController.clientsKey,
-                              ),
-                            ),
-                            _buildNavItem(
-                              '17+ Apps & Demos',
-                              () => navController.scrollToSection(
-                                navController.projectsKey,
-                              ),
-                            ),
-                            _buildNavItem(
-                              'Capabilities',
-                              () => navController.scrollToSection(
-                                navController.capabilitiesKey,
-                              ),
-                            ),
-                            _buildNavItem(
-                              'Shorebird OTA',
-                              () => navController.scrollToSection(
-                                navController.shorebirdKey,
-                              ),
-                            ),
-                            _buildNavItem(
-                              'Skills',
-                              () => navController.scrollToSection(
-                                navController.skillsKey,
-                              ),
-                            ),
-                            _buildNavItem(
-                              'Experience',
-                              () => navController.scrollToSection(
-                                navController.experienceKey,
-                              ),
-                            ),
-                            _buildNavItem(
-                              'Contact',
-                              () => navController.scrollToSection(
-                                navController.contactKey,
-                              ),
-                            ),
-                          ],
-                        ),
+                // Desktop Nav Links
+                if (isDesktop) ...[
+                  Flexible(
+                    flex: 2,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildNavItem(
+                            'About',
+                            () => navController.scrollToSection(navController.heroKey),
+                            navController.activeSection == 'hero',
+                          ),
+                          _buildNavItem(
+                            'Clients',
+                            () => navController.scrollToSection(navController.clientsKey),
+                            navController.activeSection == 'clients',
+                          ),
+                          _buildNavItem(
+                            '17+ Apps & Demos',
+                            () => navController.scrollToSection(navController.projectsKey),
+                            navController.activeSection == 'projects',
+                          ),
+                          _buildNavItem(
+                            'Capabilities',
+                            () => navController.scrollToSection(navController.capabilitiesKey),
+                            navController.activeSection == 'capabilities',
+                          ),
+                          _buildNavItem(
+                            'Shorebird OTA',
+                            () => navController.scrollToSection(navController.shorebirdKey),
+                            navController.activeSection == 'shorebird',
+                          ),
+                          _buildNavItem(
+                            'Skills',
+                            () => navController.scrollToSection(navController.skillsKey),
+                            navController.activeSection == 'skills',
+                          ),
+                          _buildNavItem(
+                            'Experience',
+                            () => navController.scrollToSection(navController.experienceKey),
+                            navController.activeSection == 'experience',
+                          ),
+                          _buildNavItem(
+                            'Contact',
+                            () => navController.scrollToSection(navController.contactKey),
+                            navController.activeSection == 'contact',
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 16),
+                  ),
+                  const SizedBox(width: 16),
 
-                    // Actions
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CustomButton(
-                          label: 'Resume',
-                          icon: Icons.download_rounded,
-                          variant: ButtonVariant.outline,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          onPressed: () => UrlHelper.downloadResume(),
-                        ),
-                        const SizedBox(width: 12),
-                        CustomButton(
-                          label: "Let's Talk",
-                          icon: Icons.chat_bubble_outline_rounded,
-                          variant: ButtonVariant.primary,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 10,
-                          ),
-                          onPressed: () => navController.scrollToSection(
-                            navController.contactKey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ] else ...[
-                    // Mobile Menu Button
-                    IconButton(
-                      icon: const Icon(
-                        Icons.menu_rounded,
-                        color: AppColors.textPrimary,
-                        size: 28,
+                  // Actions
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomButton(
+                        label: 'Resume',
+                        icon: Icons.download_rounded,
+                        variant: ButtonVariant.ghost,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        onPressed: () => UrlHelper.downloadResume(),
                       ),
-                      onPressed: () => _openMobileMenu(context),
+                      const SizedBox(width: 8),
+                      CustomButton(
+                        label: "Let's Talk",
+                        icon: Icons.chat_bubble_outline_rounded,
+                        variant: ButtonVariant.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        onPressed: () => navController.scrollToSection(navController.contactKey),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  // Mobile Menu Button
+                  IconButton(
+                    icon: const Icon(
+                      Icons.menu_rounded,
+                      color: AppColors.textPrimary,
+                      size: 28,
                     ),
-                  ],
+                    onPressed: () => _openMobileMenu(context),
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         ),
@@ -174,30 +169,16 @@ class AppNavigationBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.card,
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.borderLight, width: 1),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1),
               ),
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'MH',
-                      style: AppTypography.h3(
-                        size: 18,
-                        weight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '.',
-                      style: AppTypography.h3(
-                        size: 18,
-                        weight: FontWeight.w800,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
+              child: Text(
+                'MH',
+                style: AppTypography.h3(
+                  size: 18,
+                  weight: FontWeight.w800,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -236,8 +217,8 @@ class AppNavigationBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(String label, VoidCallback onTap) {
-    return _NavHoverItem(label: label, onTap: onTap);
+  Widget _buildNavItem(String label, VoidCallback onTap, bool isActive) {
+    return _NavHoverItem(label: label, onTap: onTap, isActive: isActive);
   }
 
   void _openMobileMenu(BuildContext context) {
@@ -331,11 +312,7 @@ class AppNavigationBar extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileMenuItem(
-    BuildContext context,
-    String title,
-    VoidCallback onTap,
-  ) {
+  Widget _buildMobileMenuItem(BuildContext context, String title, VoidCallback onTap) {
     return ListTile(
       title: Text(
         title,
@@ -359,8 +336,13 @@ class AppNavigationBar extends StatelessWidget {
 class _NavHoverItem extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
+  final bool isActive;
 
-  const _NavHoverItem({required this.label, required this.onTap});
+  const _NavHoverItem({
+    required this.label,
+    required this.onTap,
+    this.isActive = false,
+  });
 
   @override
   State<_NavHoverItem> createState() => _NavHoverItemState();
@@ -371,35 +353,29 @@ class _NavHoverItemState extends State<_NavHoverItem> {
 
   @override
   Widget build(BuildContext context) {
+    final active = widget.isActive || _isHovered;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.label,
-                style: AppTypography.button(
-                  color: _isHovered
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
-                  size: 14,
-                  weight: _isHovered ? FontWeight.w600 : FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                height: 2,
-                width: _isHovered ? 16 : 0,
-                color: AppColors.primary,
-              ),
-            ],
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: active ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(100), // Pill when active
+          ),
+          child: Text(
+            widget.label,
+            style: AppTypography.button(
+              color: active ? Colors.white : AppColors.textSecondary,
+              size: 14,
+              weight: active ? FontWeight.w600 : FontWeight.w500,
+            ),
           ),
         ),
       ),

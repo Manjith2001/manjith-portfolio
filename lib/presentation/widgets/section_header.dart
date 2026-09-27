@@ -27,21 +27,21 @@ class SectionHeader extends StatelessWidget {
           ? CrossAxisAlignment.center
           : CrossAxisAlignment.start,
       children: [
-        // Elegant Modern Tag Badge with Glowing Indicator
+        // Small floating pill with subtle primary glow
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
             color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.35),
+              color: AppColors.primary.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withValues(alpha: 0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -57,40 +57,48 @@ class SectionHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  tag.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.mono(
-                    color: AppColors.primaryLight,
-                    size: 11,
-                    weight: FontWeight.w700,
-                  ).copyWith(letterSpacing: 1.1),
-                ),
+              Text(
+                tag.toUpperCase(),
+                style: AppTypography.mono(
+                  color: AppColors.primaryLight,
+                  size: 11,
+                  weight: FontWeight.w700,
+                ).copyWith(letterSpacing: 1.2),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        
+        // Subtle decorative line below tag
+        Container(
+          margin: const EdgeInsets.only(top: 12, bottom: 24),
+          height: 1,
+          width: 48,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.primary,
+                AppColors.primary.withValues(alpha: 0.0),
+              ],
+            ),
+          ),
+        ),
 
-        // Main Title with accent keyword highlighting
+        // Editorial Title
         _buildHighlightedTitle(isMobile),
 
-        // Subtitle
+        // Muted subtitle with generous letter-spacing
         if (subtitle != null) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 700),
             child: Text(
               subtitle!,
               textAlign: isCenter ? TextAlign.center : TextAlign.start,
-              style: isMobile
-                  ? AppTypography.body(size: 14, color: AppColors.textSecondary)
-                  : AppTypography.bodyLarge(
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
+              style: AppTypography.bodyLarge(
+                color: AppColors.textMuted,
+                size: isMobile ? 14 : 16,
+              ).copyWith(letterSpacing: 0.5, height: 1.6),
             ),
           ),
         ],
@@ -99,55 +107,35 @@ class SectionHeader extends StatelessWidget {
   }
 
   Widget _buildHighlightedTitle(bool isMobile) {
-    // Highlight the last word (or last two words for short titles) in red accent
     final words = title.split(' ');
-    if (words.length <= 1) {
-      return Text(
-        title,
-        textAlign: isCenter ? TextAlign.center : TextAlign.start,
-        style: isMobile
-            ? AppTypography.h2(size: 26, weight: FontWeight.w700)
-            : AppTypography.h1(size: 36, weight: FontWeight.w800),
-      );
+    
+    final baseStyle = isMobile
+        ? AppTypography.display(size: 32, weight: FontWeight.w800)
+        : AppTypography.display(size: 48, weight: FontWeight.w800);
+
+    // Simple heuristic to highlight words after '&' or last word
+    List<TextSpan> spans = [];
+    bool highlightNext = false;
+
+    for (int i = 0; i < words.length; i++) {
+      final word = words[i];
+      if (word == '&' || word.toLowerCase() == 'and') {
+        spans.add(TextSpan(text: '$word ', style: baseStyle));
+        highlightNext = true;
+      } else if (highlightNext || (i == words.length - 1 && words.length > 2 && !title.contains('&'))) {
+        spans.add(TextSpan(
+          text: '$word ',
+          style: baseStyle.copyWith(color: AppColors.primary),
+        ));
+        highlightNext = false;
+      } else {
+        spans.add(TextSpan(text: '$word ', style: baseStyle));
+      }
     }
 
-    // Highlight the last 1-2 words in red
-    final int highlightCount = words.length <= 3 ? 1 : 2;
-    final normalWords = words.sublist(0, words.length - highlightCount).join(' ');
-    final highlightWords = words.sublist(words.length - highlightCount).join(' ');
-
-    final baseStyle = isMobile
-        ? AppTypography.h2(size: 26, weight: FontWeight.w700)
-        : AppTypography.h1(size: 36, weight: FontWeight.w800);
-
-    return Stack(
-      alignment: isCenter ? Alignment.center : Alignment.centerLeft,
-      children: [
-        // Preserves find.text() finder compatibility in widget test suites
-        Opacity(
-          opacity: 0.0,
-          child: Text(
-            title,
-            textAlign: isCenter ? TextAlign.center : TextAlign.start,
-            style: baseStyle,
-          ),
-        ),
-        RichText(
-          textAlign: isCenter ? TextAlign.center : TextAlign.start,
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: '$normalWords ',
-                style: baseStyle,
-              ),
-              TextSpan(
-                text: highlightWords,
-                style: baseStyle.copyWith(color: AppColors.primary),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return RichText(
+      textAlign: isCenter ? TextAlign.center : TextAlign.start,
+      text: TextSpan(children: spans),
     );
   }
 }

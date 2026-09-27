@@ -25,21 +25,21 @@ class EducationCertificationsSection extends StatelessWidget {
             title: 'Education & Certifications',
             subtitle: 'Academic foundations in Computer Science and continuous professional certifications.',
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: 48),
 
           isDesktop
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 5, child: _buildEducationList()),
-                    const SizedBox(width: 32),
+                    const SizedBox(width: 48),
                     Expanded(flex: 6, child: _buildCertificationsList()),
                   ],
                 )
               : Column(
                   children: [
                     _buildEducationList(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 48),
                     _buildCertificationsList(),
                   ],
                 ),
@@ -56,79 +56,82 @@ class EducationCertificationsSection extends StatelessWidget {
           children: [
             const Icon(
               Icons.school_outlined,
-              size: 20,
+              size: 24,
               color: AppColors.primaryLight,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Education',
-                style: AppTypography.h3(size: 18, weight: FontWeight.w700),
+                style: AppTypography.h3(size: 22, weight: FontWeight.w700),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
         Column(
           children: EducationData.educationList.map((edu) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border, width: 1),
-              ),
-              child: Column(
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
+                  Container(
+                    margin: const EdgeInsets.only(top: 6),
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryLight,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
                           edu.degree,
                           style: AppTypography.body(
-                            size: 15,
+                            size: 16,
                             weight: FontWeight.w700,
                             color: Colors.white,
                           ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AppColors.border, width: 1),
-                        ),
-                        child: Text(
-                          edu.date,
-                          style: AppTypography.mono(
-                            size: 11,
-                            color: AppColors.accentCyan,
+                        const SizedBox(height: 6),
+                        Text(
+                          edu.institution,
+                          style: AppTypography.body(
+                            size: 14,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    edu.institution,
-                    style: AppTypography.bodySmall(
-                      size: 13,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    edu.location,
-                    style: AppTypography.bodySmall(
-                      size: 12,
-                      color: AppColors.textMuted,
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              edu.date,
+                              style: AppTypography.mono(
+                                size: 12,
+                                color: AppColors.accentCyan,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '•',
+                              style: TextStyle(color: AppColors.borderLight),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              edu.location,
+                              style: AppTypography.bodySmall(
+                                size: 12,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -148,54 +151,55 @@ class EducationCertificationsSection extends StatelessWidget {
           children: [
             const Icon(
               Icons.verified_outlined,
-              size: 20,
+              size: 24,
               color: AppColors.accentEmerald,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Certifications & Workshops',
-                style: AppTypography.h3(size: 18, weight: FontWeight.w700),
+                style: AppTypography.h3(size: 22, weight: FontWeight.w700),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Column(
+        const SizedBox(height: 24),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: EducationData.certifications.map((cert) {
             return Container(
-              margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border, width: 1),
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(100), // Pill shape
+                border: Border.all(color: AppColors.borderLight, width: 1),
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(cert.icon, size: 18, color: AppColors.primaryLight),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          cert.title,
-                          style: AppTypography.body(
-                            size: 13,
-                            weight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
+                  Icon(cert.icon, size: 16, color: AppColors.primaryLight),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        cert.title,
+                        style: AppTypography.body(
+                          size: 13,
+                          weight: FontWeight.w600,
+                          color: Colors.white,
                         ),
-                        Text(
-                          '${cert.issuer} • ${cert.date}',
-                          style: AppTypography.bodySmall(
-                            size: 11,
-                            color: AppColors.textMuted,
-                          ),
+                      ),
+                      Text(
+                        '${cert.issuer} • ${cert.date}',
+                        style: AppTypography.bodySmall(
+                          size: 11,
+                          color: AppColors.textMuted,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
@@ -6,7 +7,6 @@ import '../../../data/projects_data.dart';
 import '../../../models/project_model.dart';
 import '../../controllers/navigation_controller.dart';
 import '../../widgets/section_header.dart';
-import '../../widgets/tech_chip.dart';
 import 'project_card.dart';
 
 class ProjectsSection extends StatefulWidget {
@@ -36,100 +36,142 @@ class _ProjectsSectionState extends State<ProjectsSection> {
       return p.category == _selectedCategory;
     }).toList();
 
-    int crossAxisCount;
-    if (width >= 1150) {
-      crossAxisCount = 3;
-    } else if (width >= 720) {
-      crossAxisCount = 2;
-    } else {
-      crossAxisCount = 1;
-    }
-
     return Container(
       constraints: const BoxConstraints(maxWidth: Responsive.maxContentWidth),
-      padding: const EdgeInsets.symmetric(vertical: 60),
+      padding: const EdgeInsets.symmetric(vertical: 80),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Header without machine-generated slashes
+          // Section Header
           const SectionHeader(
-            tag: 'Commercial Applications',
-            title: 'Project Showcase & Video Demos',
+            tag: 'Device Lab',
+            title: 'Commercial App Gallery',
             subtitle:
                 'Explore 17+ commercial applications deployed to Google Play Store & Apple App Store. '
-                'Watch live 60fps walkthrough video recordings of Enkage, Rentings, YalDiet, Healthy Diet, '
-                'The Champions Diet, Under Thirty, Nura, Steamed, and Traffic Map.',
-          ),
-          const SizedBox(height: 32),
+                'Watch live 60fps walkthrough video recordings of top-tier production deployments.',
+          ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
+          const SizedBox(height: 40),
 
-          // Symmetrical Category Filter Tabs Track
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border, width: 1),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              child: Row(
-                children: ProjectsData.categories.map((cat) {
-                  final isSelected = _selectedCategory == cat;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: TechChip(
-                      label: cat,
-                      icon: cat == 'Video Demos'
-                          ? Icons.play_circle_fill_rounded
-                          : null,
-                      isSelected: isSelected,
-                      color: cat == 'Video Demos'
-                          ? AppColors.accentCyan
-                          : AppColors.primaryLight,
-                      onTap: () => setState(() => _selectedCategory = cat),
+          // Refined Pill Filter Bar
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: Row(
+              children: ProjectsData.categories.map((cat) {
+                final isSelected = _selectedCategory == cat;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: FilterChip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (cat == 'Video Demos') ...[
+                          Icon(
+                            Icons.play_circle_fill_rounded,
+                            size: 15,
+                            color: isSelected ? Colors.white : AppColors.accentCyan,
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        Text(
+                          cat,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
+                    selected: isSelected,
+                    onSelected: (bool selected) {
+                      setState(() => _selectedCategory = cat);
+                    },
+                    backgroundColor: AppColors.card,
+                    selectedColor: AppColors.primary,
+                    showCheckmark: false,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                      side: BorderSide(
+                        color: isSelected ? AppColors.primary : AppColors.borderLight.withValues(alpha: 0.8),
+                        width: 1.2,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    elevation: isSelected ? 4 : 0,
+                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                  ),
+                );
+              }).toList(),
+            ).animate().fadeIn(delay: 150.ms).slideX(begin: 0.05, end: 0),
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: 48),
 
-          // Responsive Project Grid
+          // Device Lab Gallery (Symmetric, Equal Proportion Grid)
           LayoutBuilder(
             builder: (context, constraints) {
-              final spacing = 20.0;
-              final totalSpacing = spacing * (crossAxisCount - 1);
-              final itemWidth =
-                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
-
               if (filteredProjects.isEmpty) {
                 return Container(
                   padding: const EdgeInsets.all(40),
                   alignment: Alignment.center,
-                  child: const Text('No projects found in this category.'),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Text(
+                    'No projects found in this category.',
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                  ),
                 );
               }
 
-              return Wrap(
-                spacing: spacing,
-                runSpacing: 24,
-                children: filteredProjects.map((project) {
-                  return SizedBox(
-                    width: itemWidth,
-                    child: ProjectCard(
-                      project: project,
-                      onSelect: () =>
-                          widget.navController.openProjectDetail(project),
-                    ),
-                  );
-                }).toList(),
-              );
+              if (width >= 1100) {
+                // 4-column symmetric grid on desktop
+                return _buildGrid(filteredProjects, 4, constraints.maxWidth);
+              } else if (width >= 800) {
+                // 3-column symmetric grid on laptop
+                return _buildGrid(filteredProjects, 3, constraints.maxWidth);
+              } else if (width >= 550) {
+                // 2-column symmetric grid on tablet
+                return _buildGrid(filteredProjects, 2, constraints.maxWidth);
+              } else {
+                // 1-column centered on mobile
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 320),
+                    child: _buildGrid(filteredProjects, 1, 320),
+                  ),
+                );
+              }
             },
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGrid(List<ProjectModel> projects, int columns, double maxWidth) {
+    const double spacing = 28.0;
+    final double totalSpacing = spacing * (columns - 1);
+    final double itemWidth = (maxWidth - totalSpacing) / columns;
+
+    return Wrap(
+      spacing: spacing,
+      runSpacing: 48,
+      children: projects.asMap().entries.map((entry) {
+        final index = entry.key;
+        final project = entry.value;
+
+        return SizedBox(
+          width: itemWidth,
+          child: ProjectCard(
+            project: project,
+            isFeatured: false,
+            onSelect: () => widget.navController.openProjectDetail(project),
+          ).animate().fadeIn(delay: (50 * (index % 8)).ms).slideY(begin: 0.08, end: 0),
+        );
+      }).toList(),
     );
   }
 }

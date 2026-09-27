@@ -45,16 +45,16 @@ class _CustomButtonState extends State<CustomButton> {
 
     switch (widget.variant) {
       case ButtonVariant.primary:
-        bg = _isHovered ? AppColors.primaryLight : AppColors.primary;
+        bg = _isHovered ? accent.withOpacity(0.9) : accent;
         border = Border.all(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         );
         shadow = [
           BoxShadow(
-            color: accent.withValues(alpha: _isHovered ? 0.45 : 0.25),
-            blurRadius: _isHovered ? 20 : 12,
-            offset: Offset(0, _isHovered ? 4 : 2),
+            color: accent.withValues(alpha: _isHovered ? 0.6 : 0.3),
+            blurRadius: _isHovered ? 24 : 12,
+            offset: Offset(0, _isHovered ? 6 : 4),
           ),
         ];
         textColor = Colors.white;
@@ -74,7 +74,7 @@ class _CustomButtonState extends State<CustomButton> {
         bg = _isHovered ? accent.withValues(alpha: 0.1) : Colors.transparent;
         border = Border.all(
           color: _isHovered ? accent : AppColors.borderLight,
-          width: 1.2,
+          width: 1.5,
         );
         textColor = _isHovered ? Colors.white : AppColors.textPrimary;
         break;
@@ -93,20 +93,24 @@ class _CustomButtonState extends State<CustomButton> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (widget.icon != null && !widget.iconTrailing) ...[
-          Icon(widget.icon, size: 16, color: textColor),
+          Icon(widget.icon, size: 18, color: textColor),
           const SizedBox(width: 8),
         ],
         Flexible(
           child: Text(
             widget.label,
-            style: AppTypography.button(color: textColor, size: 14),
+            style: AppTypography.button(
+              color: textColor,
+              size: 14,
+              weight: FontWeight.w600,
+            ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
         ),
         if (widget.icon != null && widget.iconTrailing) ...[
           const SizedBox(width: 8),
-          Icon(widget.icon, size: 16, color: textColor),
+          Icon(widget.icon, size: 18, color: textColor),
         ],
       ],
     );
@@ -120,14 +124,15 @@ class _CustomButtonState extends State<CustomButton> {
       child: GestureDetector(
         onTap: widget.onPressed,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutQuart,
           width: widget.width,
           padding:
               widget.padding ??
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           decoration: BoxDecoration(
             color: widget.onPressed != null ? bg : bg.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(100), // Pill styling
             border: border,
             boxShadow: widget.onPressed != null ? shadow : null,
           ),

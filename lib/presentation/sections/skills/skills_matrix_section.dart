@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -6,7 +7,6 @@ import '../../../core/utils/responsive.dart';
 import '../../../data/skills_data.dart';
 import '../../../models/experience_model.dart';
 import '../../widgets/section_header.dart';
-import '../../widgets/tech_chip.dart';
 
 class SkillsMatrixSection extends StatelessWidget {
   const SkillsMatrixSection({super.key});
@@ -14,167 +14,155 @@ class SkillsMatrixSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-
-    int crossAxisCount;
-    if (width >= 1100) {
-      crossAxisCount = 3;
-    } else if (width >= 720) {
-      crossAxisCount = 2;
-    } else {
-      crossAxisCount = 1;
-    }
+    
+    int columns = 1;
+    if (width >= 1024) columns = 3;
+    else if (width >= 768) columns = 2;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: Responsive.maxContentWidth),
-      padding: const EdgeInsets.symmetric(vertical: 60),
+      padding: const EdgeInsets.symmetric(vertical: 96),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header without machine-generated slashes
           const SectionHeader(
-            tag: 'Technical Skills',
+            tag: 'Technology Ecosystem',
             title: 'Verified Skills & Tech Ecosystem',
             subtitle:
                 'Hands-on engineering competencies grouped across mobile platforms, state architectures, '
                 'payment gateways, and production cloud services. Zero subjective percentages.',
-          ),
-          const SizedBox(height: 36),
-
-          // Cards Grid
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final spacing = 20.0;
-              final totalSpacing = spacing * (crossAxisCount - 1);
-              final itemWidth =
-                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
-
-              return Wrap(
-                spacing: spacing,
-                runSpacing: 20,
-                children: SkillsData.categories.map((cat) {
-                  return SizedBox(
-                    width: itemWidth,
-                    child: _SkillCategoryCard(category: cat),
-                  );
-                }).toList(),
-              );
-            },
-          ),
+          ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutQuad),
+          const SizedBox(height: 64),
+          
+          _buildMasonryLikeGrid(columns),
         ],
       ),
     );
   }
+
+  Widget _buildMasonryLikeGrid(int columns) {
+    final List<List<Widget>> cols = List.generate(columns, (_) => <Widget>[]);
+    
+    for (int i = 0; i < SkillsData.categories.length; i++) {
+      cols[i % columns].add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: _FloatingPod(category: SkillsData.categories[i]),
+        ).animate().fadeIn(delay: (100 * i).ms).slideY(begin: 0.1),
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: cols.map((colItems) {
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: columns > 1 ? 12.0 : 0),
+            child: Column(
+              children: colItems,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
 }
 
-class _SkillCategoryCard extends StatefulWidget {
+class _FloatingPod extends StatefulWidget {
   final SkillCategoryModel category;
 
-  const _SkillCategoryCard({required this.category});
+  const _FloatingPod({required this.category});
 
   @override
-  State<_SkillCategoryCard> createState() => _SkillCategoryCardState();
+  State<_FloatingPod> createState() => _FloatingPodState();
 }
 
-class _SkillCategoryCardState extends State<_SkillCategoryCard> {
+class _FloatingPodState extends State<_FloatingPod> {
   bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final cat = widget.category;
-
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        constraints: const BoxConstraints(minHeight: 180),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        transform: _isHovered ? Matrix4.translationValues(0, -4, 0) : Matrix4.identity(),
+        padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: _isHovered ? AppColors.cardHover : AppColors.card,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.surface.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: _isHovered
-                ? AppColors.primary.withValues(alpha: 0.5)
-                : AppColors.border,
-            width: 1.2,
+            color: _isHovered ? widget.category.accentColor.withOpacity(0.5) : AppColors.borderLight,
+            width: 1.5,
           ),
-          boxShadow: _isHovered
-              ? AppColors.cardHoverShadow
-              : AppColors.cardShadow,
+          boxShadow: [
+            BoxShadow(
+              color: _isHovered ? widget.category.accentColor.withOpacity(0.15) : Colors.black.withOpacity(0.2),
+              blurRadius: _isHovered ? 32 : 16,
+              offset: const Offset(0, 8),
+            )
+          ],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.surface,
+              widget.category.accentColor.withOpacity(0.02),
+            ],
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Red accent top border
-            Container(
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withValues(alpha: _isHovered ? 1.0 : 0.6),
-                    AppColors.primaryLight.withValues(alpha: _isHovered ? 0.8 : 0.3),
-                  ],
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: widget.category.accentColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: widget.category.accentColor.withOpacity(0.2)),
+                  ),
+                  child: Icon(widget.category.icon, color: widget.category.accentColor, size: 24),
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    widget.category.name,
+                    style: AppTypography.h3(size: 20, weight: FontWeight.w700, color: Colors.white),
+                  ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Top Row - Symmetric 44px height
-                  SizedBox(
-                    height: 44,
-                    child: Row(
-                      children: [
-                        // Red-tinted icon badge
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Icon(cat.icon, color: AppColors.primary, size: 20),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            cat.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.body(
-                              size: 15,
-                              weight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: widget.category.skills.asMap().entries.map((entry) {
+                final isCore = entry.key < 2; // First 2 skills as "core" skills
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: isCore ? 16 : 14, vertical: isCore ? 10 : 8),
+                  decoration: BoxDecoration(
+                    color: isCore ? widget.category.accentColor.withOpacity(0.1) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(
+                      color: isCore 
+                          ? widget.category.accentColor.withOpacity(0.5) 
+                          : AppColors.borderLight,
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  // Skills Chips - Minimum height for symmetry
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 88),
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: cat.skills.map((skill) {
-                        return TechChip(
-                          label: skill,
-                          color: _isHovered ? AppColors.primary : null,
-                        );
-                      }).toList(),
+                  child: Text(
+                    entry.value,
+                    style: AppTypography.bodySmall(
+                      size: isCore ? 13 : 12,
+                      color: isCore ? Colors.white : AppColors.textSecondary,
+                      weight: isCore ? FontWeight.w600 : FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
+                );
+              }).toList(),
             ),
           ],
         ),

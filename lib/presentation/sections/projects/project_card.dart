@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/theme/brand_icons.dart';
-import '../../../core/utils/url_helper.dart';
 import '../../../models/project_model.dart';
-import '../../widgets/tech_chip.dart';
 
 class ProjectCard extends StatefulWidget {
   final ProjectModel project;
+  final bool isFeatured;
   final VoidCallback onSelect;
 
-  const ProjectCard({super.key, required this.project, required this.onSelect});
+  const ProjectCard({
+    super.key,
+    required this.project,
+    this.isFeatured = false,
+    required this.onSelect,
+  });
 
   @override
   State<ProjectCard> createState() => _ProjectCardState();
@@ -23,7 +27,6 @@ class _ProjectCardState extends State<ProjectCard> {
   @override
   Widget build(BuildContext context) {
     final project = widget.project;
-    final hasImage = project.hasScreenshots;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -32,416 +35,18 @@ class _ProjectCardState extends State<ProjectCard> {
       child: GestureDetector(
         onTap: widget.onSelect,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          constraints: const BoxConstraints(minHeight: 490),
-          transform: _isHovered
-              ? Matrix4.translationValues(0.0, -4.0, 0.0)
-              : Matrix4.identity(),
-          decoration: BoxDecoration(
-            color: _isHovered ? AppColors.cardHover : AppColors.card,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: _isHovered
-                  ? AppColors.primary.withValues(alpha: 0.5)
-                  : AppColors.border,
-              width: 1.2,
-            ),
-            boxShadow: _isHovered
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.22),
-                      blurRadius: 28,
-                      offset: const Offset(0, 10),
-                    ),
-                  ]
-                : AppColors.cardShadow,
-          ),
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          transform: _isHovered ? Matrix4.translationValues(0, -6, 0) : Matrix4.identity(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Top Media Header with rounded top corners
-              if (hasImage)
-                _buildScreenshotPreview(project)
-              else
-                _buildBrandedHeader(project),
-
-              // Red accent divider line
-              Container(
-                height: 2,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary.withValues(alpha: _isHovered ? 0.8 : 0.4),
-                      AppColors.primaryLight.withValues(alpha: _isHovered ? 0.5 : 0.15),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
-
-              // Content Body with Symmetric Sections
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Category & Platform badges - Responsive Wrap
-                    Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: [
-                        Container(
-                          height: 26,
-                          constraints: const BoxConstraints(maxWidth: 220),
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            project.category.toUpperCase(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.mono(
-                              color: AppColors.primary,
-                              size: 10.5,
-                              weight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-
-                        // Store / Platform indicators & Video Demo badge
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (project.hasPlayStore)
-                              IconButton(
-                                icon: const Icon(
-                                  BrandIcons.googlePlay,
-                                  size: 15,
-                                ),
-                                color: AppColors.primaryLight,
-                                tooltip: 'Open on Google Play Store',
-                                constraints: const BoxConstraints(),
-                                padding: const EdgeInsets.symmetric(horizontal: 3),
-                                onPressed: () =>
-                                    UrlHelper.openUrl(project.playStoreUrl!),
-                              ),
-                            if (project.hasAppStore)
-                              IconButton(
-                                icon: const Icon(BrandIcons.apple, size: 16),
-                                color: AppColors.textPrimary,
-                                tooltip: 'Open on Apple App Store',
-                                constraints: const BoxConstraints(),
-                                padding: const EdgeInsets.symmetric(horizontal: 3),
-                                onPressed: () =>
-                                    UrlHelper.openUrl(project.appStoreUrl!),
-                              ),
-                            if (project.hasVideo)
-                              Container(
-                                height: 24,
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.16),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: AppColors.primary.withValues(alpha: 0.45),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.play_circle_fill_rounded,
-                                      size: 12,
-                                      color: AppColors.primaryLight,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Video Demo',
-                                      style: AppTypography.mono(
-                                        size: 10,
-                                        weight: FontWeight.w600,
-                                        color: AppColors.primaryLight,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Project Title & Client Region - Symmetric 28px height row
-                    SizedBox(
-                      height: 28,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              project.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTypography.h3(
-                                size: 18,
-                                color: _isHovered
-                                    ? Colors.white
-                                    : AppColors.textPrimary,
-                                weight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          if (project.clientRegion != null) ...[
-                            const SizedBox(width: 8),
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 110),
-                              child: Text(
-                                project.clientRegion!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-
-                    // Client Name - Symmetric 20px height row
-                    SizedBox(
-                      height: 20,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          project.clientName != null
-                              ? 'Client: ${project.clientName}'
-                              : 'Commercial Production',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.bodySmall(
-                            size: 12,
-                            color: AppColors.primaryLight,
-                            weight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Description - Symmetric 56px height block
-                    SizedBox(
-                      height: 56,
-                      child: Text(
-                        project.shortDescription,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.body(
-                          size: 13,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Specialized Feature Highlights (Payments, Maps, OTA) - Responsive row
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 26),
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: [
-                          if (project.hasPayments)
-                            Container(
-                              height: 24,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: AppColors.accentCyan.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: AppColors.accentCyan.withValues(alpha: 0.35),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.payment_rounded,
-                                    size: 12,
-                                    color: AppColors.accentCyan,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      project.paymentGateways.first,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: AppTypography.mono(
-                                        size: 10,
-                                        color: AppColors.accentCyan,
-                                        weight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (project.hasMapIntegration)
-                            Container(
-                              height: 24,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: AppColors.accentAmber.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: AppColors.accentAmber.withValues(alpha: 0.35),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.map_rounded,
-                                    size: 12,
-                                    color: AppColors.accentAmber,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      'Google Maps SDK',
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: AppTypography.mono(
-                                        size: 10,
-                                        color: AppColors.accentAmber,
-                                        weight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (project.hasShorebirdOta)
-                            Container(
-                              height: 24,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryLight.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: AppColors.primaryLight.withValues(alpha: 0.35),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.bolt_rounded,
-                                    size: 12,
-                                    color: AppColors.primaryLight,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      'Shorebird OTA',
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: AppTypography.mono(
-                                        size: 10,
-                                        color: AppColors.primaryLight,
-                                        weight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Standard Tech Chips - Responsive row
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 30),
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: project.technologies.take(3).map((tech) {
-                          return TechChip(
-                            label: tech,
-                            color: _isHovered ? AppColors.primary : null,
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Bottom Link Row - Symmetric 24px height
-                    SizedBox(
-                      height: 24,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              project.hasVideo
-                                  ? 'Demo & Case Study'
-                                  : 'View Case Study',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTypography.button(
-                                color: _isHovered
-                                    ? AppColors.primary
-                                    : AppColors.textPrimary,
-                                size: 13,
-                              ),
-                            ),
-                          ),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            transform: Matrix4.translationValues(
-                              _isHovered ? 4 : 0,
-                              0,
-                              0,
-                            ),
-                            child: Icon(
-                              project.hasVideo
-                                  ? Icons.play_arrow_rounded
-                                  : Icons.arrow_forward_rounded,
-                              size: 18,
-                              color: _isHovered
-                                  ? AppColors.primary
-                                  : AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Phone Device Frame (Symmetric, regular proportion)
+              _buildDeviceFrame(project),
+              const SizedBox(height: 16),
+              // Metadata Below
+              _buildMetadata(project),
             ],
           ),
         ),
@@ -449,146 +54,405 @@ class _ProjectCardState extends State<ProjectCard> {
     );
   }
 
-  Widget _buildScreenshotPreview(ProjectModel project) {
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(17)),
+  Widget _buildDeviceFrame(ProjectModel project) {
+    final frameColor = _isHovered ? project.accentColor : AppColors.borderLight;
+
+    return AspectRatio(
+      aspectRatio: 9 / 18.5, // Standard modern handheld phone aspect ratio
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F0F14),
+          borderRadius: BorderRadius.circular(32), // Phone bezel radius
+          border: Border.all(
+            color: frameColor.withValues(alpha: _isHovered ? 0.7 : 0.4),
+            width: 2,
+          ),
+          boxShadow: _isHovered
+              ? [
+                  BoxShadow(
+                    color: project.accentColor.withValues(alpha: 0.25),
+                    blurRadius: 28,
+                    offset: const Offset(0, 12),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0), // Bezel thickness
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(28), // Inner screen radius
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Screen Content: Screenshot OR Stylized App Mockup with Name
+                if (project.hasScreenshots)
+                  AnimatedScale(
+                    scale: _isHovered ? 1.04 : 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    child: Image.asset(
+                      project.thumbnail,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                      errorBuilder: (_, _, _) => _buildAppScreenFallback(project),
+                    ),
+                  )
+                else
+                  _buildAppScreenFallback(project),
+
+                // Device Hardware Details: Dynamic Island & Home Indicator
+                _buildHardwareOverlay(),
+
+                // Hover Gradient
+                if (_isHovered)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          AppColors.surface.withValues(alpha: 0.7),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.0, 0.35],
+                      ),
+                    ),
+                  ),
+
+                // Play Button overlay for video demos
+                if (project.hasVideo && _isHovered)
+                  Center(
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.5),
+                            blurRadius: 16,
+                            spreadRadius: 2,
+                          )
+                        ],
+                      ),
+                      child: const Icon(Icons.play_arrow_rounded, size: 32, color: Colors.white),
+                    ).animate().scale(duration: 180.ms, curve: Curves.easeOutBack),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Screenshot image with subtle zoom
-            AnimatedScale(
-              scale: _isHovered ? 1.05 : 1.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              child: Image.asset(
-                project.thumbnail,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                alignment: Alignment.topCenter,
-                errorBuilder: (context, error, stackTrace) =>
-                    _buildFallbackImage(project),
+    );
+  }
+
+  Widget _buildHardwareOverlay() {
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          // Dynamic Island / Camera Notch
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 76,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 6),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
               ),
             ),
+          ),
+          // Home Indicator Bar
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              width: 90,
+              height: 3.5,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Subtle gradient overlay for contrast
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      AppColors.card.withValues(alpha: 0.1),
-                      AppColors.card.withValues(alpha: 0.9),
-                    ],
-                    stops: const [0.4, 0.7, 1.0],
+  // Rich App Screen Mockup showing project name, client region, and stylized UI
+  Widget _buildAppScreenFallback(ProjectModel project) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            const Color(0xFF16161E),
+            const Color(0xFF101017),
+            project.accentColor.withValues(alpha: 0.15),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 14),
+
+            // Simulated App Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: Colors.white.withValues(alpha: 0.7)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: project.accentColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Text(
+                    project.category.toUpperCase(),
+                    style: AppTypography.mono(size: 8, color: project.accentColor, weight: FontWeight.w700),
                   ),
                 ),
-              ),
+                Icon(Icons.more_horiz_rounded, size: 16, color: Colors.white.withValues(alpha: 0.7)),
+              ],
             ),
+            const SizedBox(height: 24),
 
-            // Play button overlay for videos
-            if (project.hasVideo)
-              Center(
-                child: AnimatedOpacity(
-                  opacity: _isHovered ? 1.0 : 0.85,
-                  duration: const Duration(milliseconds: 200),
-                  child: Container(
-                    width: 48,
-                    height: 48,
+            // App Brand Icon & Name on the Screen
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.9),
+                      color: project.accentColor.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: project.accentColor.withValues(alpha: 0.4),
+                        width: 1.5,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.4),
+                          color: project.accentColor.withValues(alpha: 0.2),
                           blurRadius: 16,
-                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.white,
-                      size: 28,
+                    child: Center(
+                      child: Icon(
+                        project.hasVideo
+                            ? Icons.smart_display_rounded
+                            : Icons.phone_android_rounded,
+                        color: project.accentColor,
+                        size: 26,
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 14),
+                  Text(
+                    project.name,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.h3(
+                      size: 17,
+                      weight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (project.clientRegion != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      project.clientRegion!,
+                      style: AppTypography.bodySmall(
+                        size: 11,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ],
               ),
+            ),
+            const Spacer(),
+
+            // Stylized UI Cards simulating app dashboard
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: project.accentColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.bolt_rounded, size: 18, color: project.accentColor),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(height: 6, width: 80, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(4))),
+                        const SizedBox(height: 6),
+                        Container(height: 4, width: 50, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4))),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(height: 5, width: 60, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4))),
+                  Container(height: 5, width: 30, decoration: BoxDecoration(color: project.accentColor.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(4))),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBrandedHeader(ProjectModel project) {
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primary.withValues(alpha: 0.15), AppColors.card],
-        ),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
+  Widget _buildMetadata(ProjectModel project) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            project.hasVideo
-                ? Icons.smart_display_rounded
-                : Icons.phone_android_rounded,
-            size: 64,
-            color: AppColors.primary.withValues(alpha: 0.3),
-          ),
-          if (project.hasVideo)
-            Center(
-              child: Container(
-                width: 48,
-                height: 48,
+          // Category and Video Tag
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.9),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.4),
-                      blurRadius: 16,
-                    ),
-                  ],
+                  color: project.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(color: project.accentColor.withValues(alpha: 0.3)),
                 ),
-                child: const Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 28,
+                child: Text(
+                  project.category.toUpperCase(),
+                  style: AppTypography.mono(
+                    size: 9,
+                    weight: FontWeight.w700,
+                    color: project.accentColor,
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
+              const Spacer(),
+              if (project.hasVideo)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentCyan.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(color: AppColors.accentCyan.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.play_circle_fill_rounded, size: 11, color: AppColors.accentCyan),
+                      const SizedBox(width: 4),
+                      Text(
+                        'DEMO',
+                        style: AppTypography.mono(
+                          size: 9,
+                          weight: FontWeight.w700,
+                          color: AppColors.accentCyan,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
 
-  Widget _buildFallbackImage(ProjectModel project) {
-    return Container(
-      color: AppColors.surface,
-      child: const Center(
-        child: Icon(
-          Icons.broken_image_rounded,
-          color: AppColors.textMuted,
-          size: 36,
-        ),
+          // Project Name
+          Text(
+            project.name,
+            style: AppTypography.h3(
+              size: 17,
+              weight: FontWeight.w700,
+              color: _isHovered ? Colors.white : AppColors.textPrimary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+
+          // Technologies Pills (compact)
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: project.technologies.take(3).map((tech) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(color: AppColors.borderLight.withValues(alpha: 0.7)),
+                ),
+                child: Text(
+                  tech,
+                  style: AppTypography.bodySmall(
+                    size: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

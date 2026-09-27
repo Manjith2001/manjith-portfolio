@@ -8,6 +8,7 @@ class TechChip extends StatefulWidget {
   final IconData? icon;
   final Color? color;
   final bool isSelected;
+  final bool isHighlighted;
   final VoidCallback? onTap;
 
   const TechChip({
@@ -16,6 +17,7 @@ class TechChip extends StatefulWidget {
     this.icon,
     this.color,
     this.isSelected = false,
+    this.isHighlighted = false,
     this.onTap,
   });
 
@@ -31,100 +33,72 @@ class _TechChipState extends State<TechChip> {
     final effectiveColor = widget.color ?? AppColors.primary;
     final isInteractive = widget.onTap != null;
 
-    // Premium styling: deep indigo/violet electric glow on selection, no ordinary green
-    final backgroundColor = widget.isSelected
-        ? AppColors.primary.withValues(alpha: 0.25)
+    final isSelected = widget.isSelected || widget.isHighlighted;
+
+    final backgroundColor = isSelected
+        ? effectiveColor
         : _isHovered && isInteractive
         ? AppColors.cardHover
-        : const Color(0xFF111622);
+        : Colors.white.withValues(alpha: 0.05); // Glass background
 
-    final borderColor = widget.isSelected
-        ? AppColors.primaryLight.withValues(alpha: 0.85)
+    final borderColor = isSelected
+        ? effectiveColor
         : _isHovered && isInteractive
-        ? effectiveColor.withValues(alpha: 0.55)
-        : AppColors.border;
+        ? effectiveColor.withValues(alpha: 0.5)
+        : AppColors.borderLight.withValues(alpha: 0.5); // Subtle outline
 
-    final textColor = widget.isSelected
+    final textColor = isSelected
         ? Colors.white
         : _isHovered && isInteractive
         ? AppColors.textPrimary
         : AppColors.textSecondary;
 
     return MouseRegion(
-      cursor: isInteractive
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: isInteractive ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          height: 30, // Uniform symmetric height for all pills
-          padding: const EdgeInsets.symmetric(horizontal: 11),
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutQuart,
+          height: 32, // Compact padding
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: borderColor,
-              width: widget.isSelected ? 1.2 : 1,
-            ),
-            boxShadow: widget.isSelected
+            borderRadius: BorderRadius.circular(100), // Full pill shape
+            border: Border.all(color: borderColor, width: 1),
+            boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.35),
+                      color: effectiveColor.withValues(alpha: 0.4),
                       blurRadius: 12,
-                      offset: const Offset(0, 2),
+                      offset: const Offset(0, 4),
                     ),
                   ]
-                : (_isHovered && isInteractive
-                    ? [
-                        BoxShadow(
-                          color: effectiveColor.withValues(alpha: 0.15),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null),
+                : null,
           ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final textWidget = Text(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.icon != null) ...[
+                Icon(
+                  widget.icon,
+                  size: 14,
+                  color: isSelected ? Colors.white : effectiveColor,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(
                 widget.label,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
                 style: AppTypography.tag(
                   color: textColor,
-                  size: 11.5,
-                  weight: widget.isSelected
-                      ? FontWeight.w700
-                      : FontWeight.w500,
+                  size: 12,
+                  weight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
-              );
-
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (widget.icon != null) ...[
-                    Icon(
-                      widget.icon,
-                      size: 13,
-                      color: widget.isSelected
-                          ? Colors.white
-                          : (_isHovered ? effectiveColor : AppColors.textMuted),
-                    ),
-                    const SizedBox(width: 5),
-                  ],
-                  if (constraints.maxWidth.isFinite)
-                    Flexible(child: textWidget)
-                  else
-                    textWidget,
-                ],
-              );
-            },
+              ),
+            ],
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/constants/personal_info.dart';
 import '../../../core/theme/app_colors.dart';
@@ -60,7 +61,7 @@ class HeroSection extends StatelessWidget {
           style: isMobile
               ? AppTypography.display(size: 38, weight: FontWeight.w800)
               : AppTypography.display(size: 54, weight: FontWeight.w800),
-        ),
+        ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2, end: 0),
         const SizedBox(height: 8),
 
         // Professional Title with Gradient
@@ -82,7 +83,7 @@ class HeroSection extends StatelessWidget {
                     weight: FontWeight.w700,
                   ),
           ),
-        ),
+        ).animate().fadeIn(duration: 500.ms, delay: 100.ms).slideY(begin: 0.2, end: 0),
         const SizedBox(height: 18),
 
         // Subtitle / Bio
@@ -100,7 +101,7 @@ class HeroSection extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
           ),
-        ),
+        ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(begin: 0.2, end: 0),
         const SizedBox(height: 28),
 
         // CTA Buttons
@@ -129,29 +130,37 @@ class HeroSection extends StatelessWidget {
               onPressed: () =>
                   navController.scrollToSection(navController.contactKey),
             ),
-          ],
+          ].animate().fadeIn(duration: 400.ms, delay: 300.ms).scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1)),
         ),
         const SizedBox(height: 32),
 
-        // Technology quick highlights
-        Wrap(
-          alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
-          spacing: 8,
-          runSpacing: 8,
-          children: const [
-            TechChip(label: 'Flutter & Dart', icon: Icons.code_rounded),
-            TechChip(label: 'Android & iOS', icon: Icons.phone_iphone_rounded),
-            TechChip(
-              label: 'Clean Architecture',
-              icon: Icons.account_tree_outlined,
-            ),
-            TechChip(
-              label: '9+ Payment Gateways',
-              icon: Icons.payments_outlined,
-            ),
-            TechChip(label: 'Shorebird OTA', icon: Icons.bolt_rounded),
-            TechChip(label: 'Google Maps SDK', icon: Icons.map_outlined),
-          ],
+        // Technology quick highlights - floating ecosystem style
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.card.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.borderLight.withValues(alpha: 0.5)),
+          ),
+          child: Wrap(
+            alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
+            spacing: 12,
+            runSpacing: 12,
+            children: const [
+              TechChip(label: 'Flutter & Dart', icon: Icons.code_rounded),
+              TechChip(label: 'Android & iOS', icon: Icons.phone_iphone_rounded),
+              TechChip(
+                label: 'Clean Architecture',
+                icon: Icons.account_tree_outlined,
+              ),
+              TechChip(
+                label: '9+ Payment Gateways',
+                icon: Icons.payments_outlined,
+              ),
+              TechChip(label: 'Shorebird OTA', icon: Icons.bolt_rounded),
+              TechChip(label: 'Google Maps SDK', icon: Icons.map_outlined),
+            ],
+          ).animate().fadeIn(duration: 400.ms, delay: 400.ms).slideY(begin: 0.2, end: 0),
         ),
       ],
     );

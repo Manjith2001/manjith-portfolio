@@ -64,9 +64,9 @@ class _LightboxModalState extends State<LightboxModal> {
 
             // Top Header Bar
             Positioned(
-              top: 24,
-              left: 24,
-              right: 24,
+              top: 32,
+              left: 32,
+              right: 32,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -75,84 +75,144 @@ class _LightboxModalState extends State<LightboxModal> {
                     children: [
                       Text(
                         project.name,
-                        style: AppTypography.h3(
-                          size: 18,
-                          weight: FontWeight.w700,
+                        style: AppTypography.h2(
+                          size: 24,
+                          weight: FontWeight.w800,
                           color: Colors.white,
                         ),
                       ),
-                      Text(
-                        'Screen ${activeIndex + 1} of ${project.screenshots.length}',
-                        style: AppTypography.mono(
-                          size: 12,
-                          color: AppColors.accentCyan,
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Text(
+                          'Screen ${activeIndex + 1} of ${project.screenshots.length}',
+                          style: AppTypography.mono(
+                            size: 12,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white,
-                      size: 28,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                     ),
-                    onPressed: () => widget.navController.closeLightbox(),
+                    child: IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white),
+                      onPressed: () => widget.navController.closeLightbox(),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Main Image with Hero/InteractiveViewer
+            // Main Image in Device Frame
             Center(
               child: Container(
                 constraints: const BoxConstraints(
-                  maxWidth: 800,
-                  maxHeight: 750,
+                  maxWidth: 400, // Phone max width
+                  maxHeight: 850,
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 60,
-                  vertical: 70,
+                  horizontal: 24,
+                  vertical: 48,
                 ),
                 child: InteractiveViewer(
                   minScale: 0.8,
                   maxScale: 3.0,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(activeImage, fit: BoxFit.contain),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: AppColors.borderLight, width: 8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: project.accentColor.withValues(alpha: 0.2),
+                          blurRadius: 60,
+                          offset: const Offset(0, 20),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(32),
+                      child: Stack(
+                        children: [
+                          Image.asset(activeImage, fit: BoxFit.cover),
+                          // Notch
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: Container(
+                                width: 120,
+                                height: 24,
+                                decoration: const BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(12),
+                                    bottomRight: Radius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
 
-            // Left arrow
+            // Floating Navigation Pods
             if (project.screenshots.length > 1)
               Positioned(
-                left: 20,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.chevron_left_rounded,
-                    size: 48,
-                    color: Colors.white,
-                  ),
-                  onPressed: () => widget.navController.previousScreenshot(),
+                left: 32,
+                child: _buildNavPod(
+                  icon: Icons.chevron_left_rounded,
+                  onTap: () => widget.navController.previousScreenshot(),
                 ),
               ),
 
-            // Right arrow
             if (project.screenshots.length > 1)
               Positioned(
-                right: 20,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.chevron_right_rounded,
-                    size: 48,
-                    color: Colors.white,
-                  ),
-                  onPressed: () => widget.navController.nextScreenshot(),
+                right: 32,
+                child: _buildNavPod(
+                  icon: Icons.chevron_right_rounded,
+                  onTap: () => widget.navController.nextScreenshot(),
                 ),
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNavPod({required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20), // Pod shape
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(icon, size: 32, color: Colors.white),
       ),
     );
   }

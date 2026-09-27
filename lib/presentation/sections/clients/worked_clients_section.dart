@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../data/clients_data.dart';
 import '../../widgets/section_header.dart';
-import '../../widgets/tech_chip.dart';
 
 class WorkedClientsSection extends StatelessWidget {
   const WorkedClientsSection({super.key});
@@ -14,65 +14,71 @@ class WorkedClientsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    int crossAxisCount;
-    if (width >= 1100) {
-      crossAxisCount = 3;
-    } else if (width >= 700) {
-      crossAxisCount = 2;
-    } else {
-      crossAxisCount = 1;
-    }
-
     return Container(
       constraints: const BoxConstraints(maxWidth: Responsive.maxContentWidth),
-      padding: const EdgeInsets.symmetric(vertical: 60),
+      padding: const EdgeInsets.symmetric(vertical: 80),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Header
           const SectionHeader(
-            tag: 'Client Collaborations',
-            title: 'Worked Clients & Commercial Brands',
-            subtitle: 'Delivering scalable production mobile engineering for international clients across Qatar, Saudi Arabia, Kuwait, UAE, Singapore, Malaysia, and India.',
-          ),
-          const SizedBox(height: 36),
+            tag: 'Client Ecosystem',
+            title: 'Premium Brand Collaborations',
+            subtitle:
+                'Delivering scalable production mobile engineering for international clients across '
+                'Qatar, Saudi Arabia, Kuwait, UAE, Singapore, Malaysia, and India.',
+          ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
+          const SizedBox(height: 48),
 
-          // Structured Responsive Client Cards Grid
           LayoutBuilder(
             builder: (context, constraints) {
-              final spacing = 20.0;
-              final totalSpacing = spacing * (crossAxisCount - 1);
-              final itemWidth =
-                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
-
-              return Wrap(
-                spacing: spacing,
-                runSpacing: 20,
-                children: ClientsData.clients.map((client) {
-                  return SizedBox(
-                    width: itemWidth,
-                    child: _ClientCard(client: client),
-                  );
-                }).toList(),
-              );
+              if (width >= 1024) {
+                return _buildGrid(columns: 3, maxWidth: constraints.maxWidth);
+              } else if (width >= 700) {
+                return _buildGrid(columns: 2, maxWidth: constraints.maxWidth);
+              } else {
+                return _buildGrid(columns: 1, maxWidth: constraints.maxWidth);
+              }
             },
           ),
         ],
       ),
     );
   }
+
+  Widget _buildGrid({required int columns, required double maxWidth}) {
+    final double spacing = 24.0;
+    final double totalSpacing = spacing * (columns - 1);
+    final double itemWidth = (maxWidth - totalSpacing) / columns;
+
+    return Wrap(
+      spacing: spacing,
+      runSpacing: spacing,
+      children: ClientsData.clients.asMap().entries.map((entry) {
+        final index = entry.key;
+        final client = entry.value;
+
+        return SizedBox(
+          width: itemWidth,
+          child: _ClientPodCard(client: client)
+              .animate()
+              .fadeIn(delay: (60 * index).ms)
+              .slideY(begin: 0.08, end: 0),
+        );
+      }).toList(),
+    );
+  }
 }
 
-class _ClientCard extends StatefulWidget {
+class _ClientPodCard extends StatefulWidget {
   final ClientModel client;
 
-  const _ClientCard({required this.client});
+  const _ClientPodCard({required this.client});
 
   @override
-  State<_ClientCard> createState() => _ClientCardState();
+  State<_ClientPodCard> createState() => _ClientPodCardState();
 }
 
-class _ClientCardState extends State<_ClientCard> {
+class _ClientPodCardState extends State<_ClientPodCard> {
   bool _isHovered = false;
 
   @override
@@ -83,183 +89,172 @@ class _ClientCardState extends State<_ClientCard> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        constraints: const BoxConstraints(minHeight: 280),
-        transform: _isHovered
-            ? Matrix4.diagonal3Values(1.02, 1.02, 1.0)
-            : Matrix4.identity(),
-        transformAlignment: Alignment.center,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        transform: _isHovered ? Matrix4.translationValues(0, -4, 0) : Matrix4.identity(),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: _isHovered ? AppColors.cardHover : AppColors.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: _isHovered
-                ? AppColors.primary.withValues(alpha: 0.5)
-                : AppColors.border,
-            width: 1.2,
+                ? client.accentColor.withValues(alpha: 0.5)
+                : AppColors.borderLight.withValues(alpha: 0.7),
+            width: 1.5,
           ),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.2),
+                    color: client.accentColor.withValues(alpha: 0.15),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
                 ]
-              : AppColors.cardShadow,
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.surface,
+              _isHovered
+                  ? client.accentColor.withValues(alpha: 0.06)
+                  : Colors.transparent,
+            ],
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Red accent top border line
-            Container(
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withValues(alpha: _isHovered ? 1.0 : 0.6),
-                    AppColors.primaryLight.withValues(alpha: _isHovered ? 0.8 : 0.3),
-                  ],
+            // Top Header: Icon + Name + Region Flag
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: client.accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: client.accentColor.withValues(alpha: 0.25),
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      client.icon,
+                      color: client.accentColor,
+                      size: 22,
+                    ),
+                  ),
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Top Row: Icon + Symmetric Scale Badge
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Red-tinted rounded square icon badge
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
+                      Text(
+                        client.name,
+                        style: AppTypography.h3(
+                          size: 17,
+                          weight: FontWeight.w700,
+                          color: Colors.white,
                         ),
-                        child: Center(
-                          child: Icon(
-                            client.icon,
-                            color: AppColors.primary,
-                            size: 22,
-                          ),
-                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Container(
-                          height: 30,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.border, width: 1),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text(
+                            client.flag,
+                            style: const TextStyle(fontSize: 13),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(client.flag, style: const TextStyle(fontSize: 12)),
-                              const SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  client.scale,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTypography.mono(
-                                    size: 11,
-                                    weight: FontWeight.w600,
-                                    color: AppColors.accentEmerald,
-                                  ),
-                                ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              client.region,
+                              style: AppTypography.mono(
+                                size: 11,
+                                color: AppColors.textMuted,
                               ),
-                            ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
 
-                  // Client Name - Symmetric Fixed Height Box
-                  SizedBox(
-                    height: 26,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        client.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.h3(
-                          size: 18,
-                          weight: FontWeight.w700,
-                          color: _isHovered ? Colors.white : AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Domain & Region - Symmetric Fixed Height Box
-                  SizedBox(
-                    height: 20,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '${client.domain} • ${client.region}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.bodySmall(
-                          size: 12,
-                          color: AppColors.primaryLight,
-                          weight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Highlight Description - Symmetric Min Height Box
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 58),
-                    child: Text(
-                      client.highlight,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.body(
-                        size: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Uniform Technology Pills - Symmetric Box
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 32),
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: client.technologies.take(3).map((tech) {
-                        return TechChip(
-                          label: tech,
-                          color: _isHovered ? AppColors.primary : null,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
+            // Domain Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: client.accentColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(
+                  color: client.accentColor.withValues(alpha: 0.2),
+                  width: 1,
+                ),
               ),
+              child: Text(
+                client.domain,
+                style: AppTypography.mono(
+                  size: 11,
+                  weight: FontWeight.w600,
+                  color: client.accentColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Highlight Summary
+            Text(
+              client.highlight,
+              style: AppTypography.bodySmall(
+                color: AppColors.textSecondary,
+                size: 13,
+              ).copyWith(height: 1.5),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 16),
+
+            // Technologies Pills
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: client.technologies.take(3).map((tech) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(
+                      color: AppColors.borderLight.withValues(alpha: 0.6),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    tech,
+                    style: AppTypography.bodySmall(
+                      size: 11,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),

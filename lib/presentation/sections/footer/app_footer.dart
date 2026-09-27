@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/personal_info.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/theme/brand_icons.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/utils/url_helper.dart';
 import '../../controllers/navigation_controller.dart';
@@ -20,12 +19,9 @@ class AppFooter extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
-      ),
+      color: Colors.transparent, // Clean, minimal
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 36 : 48,
+        vertical: isMobile ? 48 : 64,
         horizontal: Responsive.horizontalPadding(context).horizontal / 2,
       ),
       child: Center(
@@ -35,15 +31,18 @@ class AppFooter extends StatelessWidget {
           ),
           child: Column(
             children: [
+              const Divider(color: AppColors.borderLight, height: 1),
+              const SizedBox(height: 48),
+              
               // Top Row
               width < 850
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         _buildBrandInfo(),
-                        const SizedBox(height: 20),
-                        _buildSocialIcons(),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 32),
+                        _buildSocialTextLinks(),
+                        const SizedBox(height: 32),
                         _buildScrollToTop(),
                       ],
                     )
@@ -52,32 +51,30 @@ class AppFooter extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         _buildBrandInfo(),
-                        _buildSocialIcons(),
+                        _buildSocialTextLinks(),
                         _buildScrollToTop(),
                       ],
                     ),
 
-              const SizedBox(height: 36),
-              const Divider(color: AppColors.border, height: 1),
-              const SizedBox(height: 24),
+              const SizedBox(height: 48),
 
               // Bottom Copyright
               width < 700
                   ? Column(
                       children: [
                         Text(
-                          '© 2026 Manjith Hemachandran. All rights reserved.',
+                          'Â© 2026 Manjith Hemachandran. All rights reserved.',
                           style: AppTypography.bodySmall(
-                            size: 12,
+                            size: 13,
                             color: AppColors.textMuted,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Text(
-                          'Engineered with Flutter Web • Clean Architecture',
+                          'Engineered with Flutter Web â€¢ Clean Architecture',
                           style: AppTypography.mono(
                             size: 11,
-                            color: AppColors.accentCyan,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -87,18 +84,18 @@ class AppFooter extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            '© 2026 Manjith Hemachandran. All rights reserved.',
+                            'Â© 2026 Manjith Hemachandran. All rights reserved.',
                             style: AppTypography.bodySmall(
-                              size: 12,
+                              size: 13,
                               color: AppColors.textMuted,
                             ),
                           ),
                         ),
                         Text(
-                          'Engineered with Flutter Web • Clean Architecture',
+                          'Engineered with Flutter Web â€¢ Clean Architecture',
                           style: AppTypography.mono(
                             size: 11,
-                            color: AppColors.accentCyan,
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -117,42 +114,20 @@ class AppFooter extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppColors.borderLight, width: 1),
-              ),
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'MH',
-                      style: AppTypography.h3(
-                        size: 16,
-                        weight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '.',
-                      style: AppTypography.h3(
-                        size: 16,
-                        weight: FontWeight.w800,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
+            Text(
+              'MH',
+              style: AppTypography.h3(
+                size: 18,
+                weight: FontWeight.w800,
+                color: Colors.white,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Flexible(
               child: Text(
                 PersonalInfo.name,
                 style: AppTypography.body(
-                  size: 14,
+                  size: 15,
                   weight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -161,57 +136,54 @@ class AppFooter extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           PersonalInfo.title,
-          style: AppTypography.bodySmall(size: 12, color: AppColors.textMuted),
+          style: AppTypography.bodySmall(size: 13, color: AppColors.textMuted),
         ),
       ],
     );
   }
 
-  Widget _buildSocialIcons() {
+  Widget _buildSocialTextLinks() {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildIconButton(
-          icon: BrandIcons.linkedin,
-          tooltip: 'LinkedIn',
+        _buildTextLink(
+          label: 'LinkedIn',
           onTap: () => UrlHelper.openUrl(PersonalInfo.linkedIn),
         ),
-        const SizedBox(width: 8),
-        _buildIconButton(
-          icon: Icons.alternate_email_rounded,
-          tooltip: 'Email',
+        const SizedBox(width: 24),
+        _buildTextLink(
+          label: 'Email',
           onTap: () => UrlHelper.openEmail(PersonalInfo.email),
         ),
-        const SizedBox(width: 8),
-        _buildIconButton(
-          icon: Icons.phone_outlined,
-          tooltip: 'Phone',
-          onTap: () => UrlHelper.openPhone(PersonalInfo.phone),
-        ),
-        const SizedBox(width: 8),
-        _buildIconButton(
-          icon: Icons.description_outlined,
-          tooltip: 'Download Resume',
+        const SizedBox(width: 24),
+        _buildTextLink(
+          label: 'Resume',
           onTap: () => UrlHelper.downloadResume(),
         ),
       ],
     );
   }
 
-  Widget _buildIconButton({
-    required IconData icon,
-    required String tooltip,
+  Widget _buildTextLink({
+    required String label,
     required VoidCallback onTap,
   }) {
-    return IconButton(
-      icon: Icon(icon, size: 16),
-      color: AppColors.textSecondary,
-      hoverColor: AppColors.cardHover,
-      tooltip: tooltip,
-      onPressed: onTap,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Text(
+          label,
+          style: AppTypography.body(
+            size: 14,
+            weight: FontWeight.w600,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ),
     );
   }
 
@@ -220,31 +192,24 @@ class AppFooter extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () => navController.scrollToSection(navController.heroKey),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.border, width: 1),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Back to top',
-                style: AppTypography.bodySmall(
-                  size: 12,
-                  color: AppColors.textSecondary,
-                ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'BACK TO TOP',
+              style: AppTypography.mono(
+                size: 11,
+                weight: FontWeight.w600,
+                color: AppColors.textSecondary,
               ),
-              const SizedBox(width: 6),
-              const Icon(
-                Icons.arrow_upward_rounded,
-                size: 14,
-                color: AppColors.primaryLight,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.arrow_upward_rounded,
+              size: 16,
+              color: AppColors.primaryLight,
+            ),
+          ],
         ),
       ),
     );

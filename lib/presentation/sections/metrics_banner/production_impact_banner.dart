@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/constants/personal_info.dart';
 import '../../../core/theme/app_colors.dart';
@@ -19,58 +20,68 @@ class ProductionImpactBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 24),
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 20 : 36,
-        vertical: isMobile ? 24 : 32,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderLight, width: 1),
-        boxShadow: AppColors.cardShadow,
+        vertical: 16,
       ),
       child: Column(
         children: [
-          // Metrics Row
+          // Metrics Row as Floating Pods
           width < 980
               ? Column(
                   children: [
-                    _buildMetricItem(
-                      PersonalInfo.productionAppsCount,
-                      'Production Apps',
-                      'Google Play & App Store',
-                      Icons.rocket_launch_rounded,
-                      AppColors.primaryLight,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildMetricPod(
+                            PersonalInfo.productionAppsCount,
+                            'Production Apps',
+                            'Google Play & App Store',
+                            Icons.rocket_launch_rounded,
+                            AppColors.primaryLight,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildMetricPod(
+                            '${PersonalInfo.yearsOfExperience} Yrs',
+                            'Software Experience',
+                            'Mobile & Frontend',
+                            Icons.work_history_rounded,
+                            AppColors.accentCyan,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Divider(color: AppColors.border, height: 32),
-                    _buildMetricItem(
-                      '${PersonalInfo.yearsOfExperience} Yrs',
-                      'Software Experience',
-                      'Mobile & Frontend',
-                      Icons.work_history_rounded,
-                      AppColors.accentCyan,
-                    ),
-                    const Divider(color: AppColors.border, height: 32),
-                    _buildMetricItem(
-                      PersonalInfo.paymentGatewaysCount,
-                      'Payment Gateways',
-                      'International & Regional',
-                      Icons.payments_rounded,
-                      AppColors.accentEmerald,
-                    ),
-                    const Divider(color: AppColors.border, height: 32),
-                    _buildMetricItem(
-                      '17 Apps',
-                      'Shorebird OTA',
-                      'Instant Hot Patches',
-                      Icons.bolt_rounded,
-                      AppColors.accentAmber,
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildMetricPod(
+                            PersonalInfo.paymentGatewaysCount,
+                            'Payment Gateways',
+                            'International & Regional',
+                            Icons.payments_rounded,
+                            AppColors.accentEmerald,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildMetricPod(
+                            '17 Apps',
+                            'Shorebird OTA',
+                            'Instant Hot Patches',
+                            Icons.bolt_rounded,
+                            AppColors.accentAmber,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 )
               : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: _buildMetricItem(
+                      child: _buildMetricPod(
                         PersonalInfo.productionAppsCount,
                         'Production Apps',
                         'Google Play & App Store',
@@ -78,9 +89,9 @@ class ProductionImpactBanner extends StatelessWidget {
                         AppColors.primaryLight,
                       ),
                     ),
-                    _buildVerticalDivider(),
+                    const SizedBox(width: 16),
                     Expanded(
-                      child: _buildMetricItem(
+                      child: _buildMetricPod(
                         '${PersonalInfo.yearsOfExperience} Yrs',
                         'Software Experience',
                         'Mobile & Frontend',
@@ -88,9 +99,9 @@ class ProductionImpactBanner extends StatelessWidget {
                         AppColors.accentCyan,
                       ),
                     ),
-                    _buildVerticalDivider(),
+                    const SizedBox(width: 16),
                     Expanded(
-                      child: _buildMetricItem(
+                      child: _buildMetricPod(
                         PersonalInfo.paymentGatewaysCount,
                         'Payment Gateways',
                         'International & Regional',
@@ -98,9 +109,9 @@ class ProductionImpactBanner extends StatelessWidget {
                         AppColors.accentEmerald,
                       ),
                     ),
-                    _buildVerticalDivider(),
+                    const SizedBox(width: 16),
                     Expanded(
-                      child: _buildMetricItem(
+                      child: _buildMetricPod(
                         '17 Apps',
                         'Shorebird OTA',
                         'Instant Hot Patches',
@@ -109,13 +120,11 @@ class ProductionImpactBanner extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
+                ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2, end: 0),
 
-          const SizedBox(height: 28),
-          const Divider(color: AppColors.border, height: 1),
-          const SizedBox(height: 20),
+          const SizedBox(height: 32),
 
-          // Application names ticker / list
+          // Application names ticker / list as small pills
           isMobile
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,26 +141,7 @@ class ProductionImpactBanner extends StatelessWidget {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: [
-                          _buildAppBadge('Enkage (Wallet & Offers)'),
-                          _buildAppBadge('Rentings (Property SaaS)'),
-                          _buildAppBadge('Steamed (Nutrition)'),
-                          _buildAppBadge('Under Thirty Diet'),
-                          _buildAppBadge('Traffic Condition Map'),
-                          _buildAppBadge('YalDiet'),
-                          _buildAppBadge('Healthy Diet'),
-                          _buildAppBadge('Nura Diet'),
-                          _buildAppBadge('Forma Diet'),
-                          _buildAppBadge('Bizo Diet'),
-                          _buildAppBadge('Guilt Free Kitchen'),
-                          _buildAppBadge('Diet Steps'),
-                          _buildAppBadge('The Champions Diet'),
-                          _buildAppBadge('Approved Life KSA'),
-                          _buildAppBadge('Balanced Bite'),
-                          _buildAppBadge('Pure Health'),
-                          _buildAppBadge('Calculate Diet'),
-                          _buildAppBadge('Chum Chum (B2B E-Commerce)'),
-                        ],
+                        children: _buildAppBadges(),
                       ),
                     ),
                   ],
@@ -166,116 +156,122 @@ class ProductionImpactBanner extends StatelessWidget {
                         weight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: [
-                            _buildAppBadge('Enkage (Wallet & Offers)'),
-                            _buildAppBadge('Rentings (Property SaaS)'),
-                            _buildAppBadge('Steamed (Nutrition)'),
-                            _buildAppBadge('Under Thirty Diet'),
-                            _buildAppBadge('Traffic Condition Map'),
-                            _buildAppBadge('YalDiet'),
-                            _buildAppBadge('Healthy Diet'),
-                            _buildAppBadge('Nura Diet'),
-                            _buildAppBadge('Forma Diet'),
-                            _buildAppBadge('Bizo Diet'),
-                            _buildAppBadge('Guilt Free Kitchen'),
-                            _buildAppBadge('Diet Steps'),
-                            _buildAppBadge('The Champions Diet'),
-                            _buildAppBadge('Approved Life KSA'),
-                            _buildAppBadge('Balanced Bite'),
-                            _buildAppBadge('Pure Health'),
-                            _buildAppBadge('Calculate Diet'),
-                            _buildAppBadge('Chum Chum (B2B E-Commerce)'),
-                          ],
+                          children: _buildAppBadges(),
                         ),
                       ),
                     ),
                   ],
-                ),
+                ).animate().fadeIn(duration: 600.ms, delay: 200.ms),
         ],
       ),
     );
   }
 
-  Widget _buildMetricItem(
+  Widget _buildMetricPod(
     String value,
     String label,
     String subtext,
     IconData icon,
     Color accentColor,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: accentColor.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: accentColor.withValues(alpha: 0.25),
-              width: 1,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.05),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: accentColor, size: 20),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            value,
+            style: AppTypography.h2(
+              size: 28,
+              weight: FontWeight.w800,
+              color: Colors.white,
             ),
           ),
-          child: Icon(icon, color: accentColor, size: 24),
-        ),
-        const SizedBox(width: 14),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                value,
-                style: AppTypography.h2(
-                  size: 26,
-                  weight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                label,
-                style: AppTypography.body(
-                  size: 13,
-                  weight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              Text(
-                subtext,
-                style: AppTypography.bodySmall(
-                  size: 11,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
+          const SizedBox(height: 4),
+          Text(
+            label.toUpperCase(),
+            style: AppTypography.mono(
+              size: 11,
+              weight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 2),
+          Text(
+            subtext,
+            style: AppTypography.bodySmall(
+              size: 11,
+              color: AppColors.textMuted,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildVerticalDivider() {
-    return Container(
-      height: 48,
-      width: 1,
-      color: AppColors.border,
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-    );
+  List<Widget> _buildAppBadges() {
+    final apps = [
+      'Enkage (Wallet & Offers)',
+      'Rentings (Property SaaS)',
+      'Steamed (Nutrition)',
+      'Under Thirty Diet',
+      'Traffic Condition Map',
+      'YalDiet',
+      'Healthy Diet',
+      'Nura Diet',
+      'Forma Diet',
+      'Bizo Diet',
+      'Guilt Free Kitchen',
+      'Diet Steps',
+      'The Champions Diet',
+      'Approved Life KSA',
+      'Balanced Bite',
+      'Pure Health',
+      'Calculate Diet',
+      'Chum Chum (B2B E-Commerce)',
+    ];
+
+    return apps.map((app) => _buildAppBadge(app)).toList();
   }
 
   Widget _buildAppBadge(String name) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AppColors.borderSubtle, width: 1),
+        color: AppColors.card.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(100), // Pill shape
+        border: Border.all(color: AppColors.borderLight, width: 1),
       ),
       child: Text(
         name,

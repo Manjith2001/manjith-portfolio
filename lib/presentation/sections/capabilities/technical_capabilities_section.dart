@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -6,7 +7,6 @@ import '../../../core/utils/responsive.dart';
 import '../../../data/capabilities_data.dart';
 import '../../../models/experience_model.dart';
 import '../../widgets/section_header.dart';
-import '../../widgets/tech_chip.dart';
 
 class TechnicalCapabilitiesSection extends StatelessWidget {
   const TechnicalCapabilitiesSection({super.key});
@@ -15,213 +15,224 @@ class TechnicalCapabilitiesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    int crossAxisCount;
-    if (width >= 1100) {
-      crossAxisCount = 3;
-    } else if (width >= 700) {
-      crossAxisCount = 2;
-    } else {
-      crossAxisCount = 1;
-    }
-
     return Container(
       constraints: const BoxConstraints(maxWidth: Responsive.maxContentWidth),
-      padding: const EdgeInsets.symmetric(vertical: 60),
+      padding: const EdgeInsets.symmetric(vertical: 96),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header without machine-generated slashes
           const SectionHeader(
-            tag: 'Engineering Capabilities',
+            tag: 'Engineering System',
             title: 'Technical Depth & Architecture',
             subtitle:
                 'Delivering end-to-end commercial solutions: from robust Clean Architecture and '
                 '9+ international payment gateways to native device features, mathematical calculation engines, and OTA pipelines.',
-          ),
-          const SizedBox(height: 36),
-
-          // Symmetrical Responsive Grid
+          ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutQuad),
+          const SizedBox(height: 64),
+          
           LayoutBuilder(
             builder: (context, constraints) {
-              final spacing = 20.0;
-              final totalSpacing = spacing * (crossAxisCount - 1);
-              final itemWidth =
-                  (constraints.maxWidth - totalSpacing) / crossAxisCount;
-
-              return Wrap(
-                spacing: spacing,
-                runSpacing: 20,
-                children: CapabilitiesData.capabilities.map((cap) {
-                  return SizedBox(
-                    width: itemWidth,
-                    child: _CapabilityCard(capability: cap),
-                  );
-                }).toList(),
-              );
+              if (width >= 1024) {
+                return _buildDesktopLayout();
+              } else {
+                return _buildMobileTabletLayout();
+              }
             },
           ),
         ],
       ),
     );
   }
+
+  Widget _buildDesktopLayout() {
+    final caps = CapabilitiesData.capabilities;
+    return Column(
+      children: [
+        // First 2: Wide Tablets
+        Row(
+          children: [
+            Expanded(child: _CapabilitySurface(capability: caps[0], type: _SurfaceType.tablet)),
+            const SizedBox(width: 24),
+            Expanded(child: _CapabilitySurface(capability: caps[1], type: _SurfaceType.tablet)),
+          ],
+        ).animate().fadeIn().slideY(begin: 0.1),
+        const SizedBox(height: 24),
+        // Next 2: Medium Pods
+        Row(
+          children: [
+            Expanded(child: _CapabilitySurface(capability: caps[2], type: _SurfaceType.pod)),
+            const SizedBox(width: 24),
+            Expanded(child: _CapabilitySurface(capability: caps[3], type: _SurfaceType.pod)),
+          ],
+        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+        const SizedBox(height: 24),
+        // Last 2: Compact Pills
+        Row(
+          children: [
+            Expanded(child: _CapabilitySurface(capability: caps[4], type: _SurfaceType.pill)),
+            const SizedBox(width: 24),
+            Expanded(child: _CapabilitySurface(capability: caps[5], type: _SurfaceType.pill)),
+          ],
+        ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+      ],
+    );
+  }
+
+  Widget _buildMobileTabletLayout() {
+    return Column(
+      children: CapabilitiesData.capabilities.map((cap) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: _CapabilitySurface(capability: cap, type: _SurfaceType.tablet),
+        );
+      }).toList(),
+    );
+  }
 }
 
-class _CapabilityCard extends StatefulWidget {
-  final CapabilityModel capability;
+enum _SurfaceType { tablet, pod, pill }
 
-  const _CapabilityCard({required this.capability});
+class _CapabilitySurface extends StatefulWidget {
+  final CapabilityModel capability;
+  final _SurfaceType type;
+
+  const _CapabilitySurface({required this.capability, required this.type});
 
   @override
-  State<_CapabilityCard> createState() => _CapabilityCardState();
+  State<_CapabilitySurface> createState() => _CapabilitySurfaceState();
 }
 
-class _CapabilityCardState extends State<_CapabilityCard> {
+class _CapabilitySurfaceState extends State<_CapabilitySurface> {
   bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final cap = widget.capability;
-
+    double borderRadius = widget.type == _SurfaceType.tablet ? 24 : (widget.type == _SurfaceType.pod ? 20 : 16);
+    EdgeInsets padding = widget.type == _SurfaceType.tablet ? const EdgeInsets.all(40) : const EdgeInsets.all(24);
+    
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        constraints: const BoxConstraints(minHeight: 320),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        transform: _isHovered ? Matrix4.translationValues(0, -4, 0) : Matrix4.identity(),
+        padding: padding,
         decoration: BoxDecoration(
-          color: _isHovered ? AppColors.cardHover : AppColors.card,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
-            color: _isHovered
-                ? AppColors.primary.withValues(alpha: 0.5)
-                : AppColors.border,
-            width: 1.2,
+            color: _isHovered ? widget.capability.accentColor.withOpacity(0.5) : AppColors.border,
+            width: 1.5,
           ),
           boxShadow: _isHovered
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : AppColors.cardShadow,
+              ? [BoxShadow(color: widget.capability.accentColor.withOpacity(0.15), blurRadius: 32, offset: const Offset(0, 16))]
+              : [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 16, offset: const Offset(0, 8))],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.surface,
+              widget.capability.accentColor.withOpacity(0.05),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Red accent top border
-            Container(
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withValues(alpha: _isHovered ? 1.0 : 0.6),
-                    AppColors.primaryLight.withValues(alpha: _isHovered ? 0.8 : 0.3),
-                  ],
-                ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Icon - Red-tinted rounded square badge
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(cap.icon, color: AppColors.primary, size: 24),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // Subtitle Tag
-                  SizedBox(
-                    height: 18,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        cap.subtitle.toUpperCase(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.mono(
-                          color: AppColors.primary,
-                          size: 11,
-                          weight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-
-                  // Title - dynamic height instead of fixed to avoid clipping
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 48),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        cap.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.h3(
-                          size: 18,
-                          color: _isHovered ? Colors.white : AppColors.textPrimary,
-                          weight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Description - dynamic height with proper wrapping
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 60),
-                    child: Text(
-                      cap.description,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.body(
-                        size: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // Tags - dynamic height with proper wrapping
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 30),
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: cap.tags.map((tag) {
-                        return TechChip(
-                          label: tag,
-                          color: _isHovered ? AppColors.primary : null,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        child: _buildContent(),
       ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (widget.type == _SurfaceType.tablet) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildIcon(),
+          const SizedBox(width: 32),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 16),
+                _buildDescription(),
+                const SizedBox(height: 24),
+                _buildTags(),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildIcon(),
+          const SizedBox(height: 24),
+          _buildHeader(),
+          const SizedBox(height: 16),
+          _buildDescription(),
+          const SizedBox(height: 24),
+          _buildTags(),
+        ],
+      );
+    }
+  }
+
+  Widget _buildIcon() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: widget.capability.accentColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: widget.capability.accentColor.withOpacity(0.2)),
+      ),
+      child: Icon(widget.capability.icon, color: widget.capability.accentColor, size: 32),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.capability.subtitle.toUpperCase(),
+          style: AppTypography.mono(size: 11, color: widget.capability.accentColor, weight: FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          widget.capability.title,
+          style: AppTypography.h3(size: 22, weight: FontWeight.w700, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescription() {
+    return Text(
+      widget.capability.description,
+      style: AppTypography.body(size: 14, color: AppColors.textSecondary),
+    );
+  }
+
+  Widget _buildTags() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: widget.capability.tags.map((tag) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(color: widget.capability.accentColor.withOpacity(0.3)),
+          ),
+          child: Text(
+            tag,
+            style: AppTypography.mono(size: 11, color: AppColors.textPrimary),
+          ),
+        );
+      }).toList(),
     );
   }
 }

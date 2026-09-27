@@ -15,24 +15,33 @@ class SectionReveal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Support prefers-reduced-motion
+    final mediaQuery = MediaQuery.maybeOf(context);
+    final disableAnimations = mediaQuery?.disableAnimations ?? false;
+
+    if (disableAnimations) {
+      return child;
+    }
+
     final isTest = WidgetsBinding.instance.runtimeType.toString().contains(
       'TestWidgetsFlutterBinding',
     );
     if (isTest) return child;
 
-    final effectiveDelay = delay ?? Duration(milliseconds: 70 * index);
+    // Staggered delay
+    final effectiveDelay = delay ?? Duration(milliseconds: 100 * index);
 
     return child
         .animate(delay: effectiveDelay)
         .fadeIn(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeOutCubic,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutQuint,
         )
         .slideY(
-          begin: 0.035,
+          begin: 0.05,
           end: 0.0,
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeOutCubic,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutQuint,
         );
   }
 }
