@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -109,7 +109,7 @@ class _ProjectCaseStudyModalState extends State<ProjectCaseStudyModal> {
                             child: ProjectVideoPlayer(
                               videoAsset: project.videoAsset!,
                               accentColor: project.accentColor,
-                              title: '${project.name} â€¢ Commercial App Walkthrough',
+                              title: '${project.name} • Commercial App Walkthrough',
                             ),
                           ),
                           const SizedBox(height: 40),
@@ -267,7 +267,7 @@ class _ProjectCaseStudyModalState extends State<ProjectCaseStudyModal> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${project.category} â€¢ ${project.clientName ?? "Commercial Client"} â€¢ ${project.platforms.join(" & ")}',
+                        '${project.category} • ${project.clientName ?? "Commercial Client"} • ${project.platforms.join(" & ")}',
                         style: AppTypography.bodySmall(
                           size: 14,
                           color: AppColors.textSecondary,

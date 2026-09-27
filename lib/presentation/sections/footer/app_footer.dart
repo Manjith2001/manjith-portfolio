@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../core/constants/personal_info.dart';
 import '../../../core/theme/app_colors.dart';
@@ -63,7 +63,7 @@ class AppFooter extends StatelessWidget {
                   ? Column(
                       children: [
                         Text(
-                          'Â© 2026 Manjith Hemachandran. All rights reserved.',
+                          '© 2026 Manjith Hemachandran. All rights reserved.',
                           style: AppTypography.bodySmall(
                             size: 13,
                             color: AppColors.textMuted,
@@ -71,7 +71,7 @@ class AppFooter extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Engineered with Flutter Web â€¢ Clean Architecture',
+                          'Engineered with Flutter Web • Clean Architecture',
                           style: AppTypography.mono(
                             size: 11,
                             color: AppColors.textMuted,
@@ -84,7 +84,7 @@ class AppFooter extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Â© 2026 Manjith Hemachandran. All rights reserved.',
+                            '© 2026 Manjith Hemachandran. All rights reserved.',
                             style: AppTypography.bodySmall(
                               size: 13,
                               color: AppColors.textMuted,
@@ -92,7 +92,7 @@ class AppFooter extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Engineered with Flutter Web â€¢ Clean Architecture',
+                          'Engineered with Flutter Web • Clean Architecture',
                           style: AppTypography.mono(
                             size: 11,
                             color: AppColors.textMuted,
