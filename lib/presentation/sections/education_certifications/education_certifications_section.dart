@@ -122,11 +122,14 @@ class EducationCertificationsSection extends StatelessWidget {
                               style: TextStyle(color: AppColors.borderLight),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              edu.location,
-                              style: AppTypography.bodySmall(
-                                size: 12,
-                                color: AppColors.textMuted,
+                            Flexible(
+                              child: Text(
+                                edu.location,
+                                style: AppTypography.bodySmall(
+                                  size: 12,
+                                  color: AppColors.textMuted,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -164,47 +167,58 @@ class EducationCertificationsSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: EducationData.certifications.map((cert) {
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(100), // Pill shape
-                border: Border.all(color: AppColors.borderLight, width: 1),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(cert.icon, size: 16, color: AppColors.primaryLight),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        cert.title,
-                        style: AppTypography.body(
-                          size: 13,
-                          weight: FontWeight.w600,
-                          color: Colors.white,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: EducationData.certifications.map((cert) {
+                return ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppColors.borderLight, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(cert.icon, size: 16, color: AppColors.primaryLight),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                cert.title,
+                                style: AppTypography.body(
+                                  size: 13,
+                                  weight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                '${cert.issuer} • ${cert.date}',
+                                style: AppTypography.bodySmall(
+                                  size: 11,
+                                  color: AppColors.textMuted,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${cert.issuer} • ${cert.date}',
-                        style: AppTypography.bodySmall(
-                          size: 11,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         ),
       ],
     );

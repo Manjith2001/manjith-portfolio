@@ -108,8 +108,21 @@ class _ProjectVideoPlayerState extends State<ProjectVideoPlayer> {
           border: Border.all(color: AppColors.border, width: 2),
         ),
         child: Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(widget.accentColor),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(widget.accentColor),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Loading 60fps Video Demo...',
+                style: AppTypography.mono(
+                  size: 12,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -119,10 +132,11 @@ class _ProjectVideoPlayerState extends State<ProjectVideoPlayer> {
     final position = _controller!.value.position;
     final duration = _controller!.value.duration;
 
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 320), // Phone width
-        child: AspectRatio(
+    return RepaintBoundary(
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 320), // Phone width
+          child: AspectRatio(
           aspectRatio: 9 / 19.5, // Phone aspect ratio
           child: MouseRegion(
             onEnter: (_) => setState(() => _showControls = true),
@@ -326,6 +340,7 @@ class _ProjectVideoPlayerState extends State<ProjectVideoPlayer> {
               ),
             ),
           ),
+        ),
         ),
       ),
     );

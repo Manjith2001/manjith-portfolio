@@ -21,13 +21,21 @@ class TechnicalCapabilitiesSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            tag: 'Engineering System',
-            title: 'Technical Depth & Architecture',
-            subtitle:
-                'Delivering end-to-end commercial solutions: from robust Clean Architecture and '
-                '9+ international payment gateways to native device features, mathematical calculation engines, and OTA pipelines.',
-          ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutQuad),
+          Responsive.isTest
+              ? const SectionHeader(
+                  tag: 'Engineering System',
+                  title: 'Technical Depth & Architecture',
+                  subtitle:
+                      'Delivering end-to-end commercial solutions: from robust Clean Architecture and '
+                      '9+ international payment gateways to native device features, mathematical calculation engines, and OTA pipelines.',
+                )
+              : const SectionHeader(
+                  tag: 'Engineering System',
+                  title: 'Technical Depth & Architecture',
+                  subtitle:
+                      'Delivering end-to-end commercial solutions: from robust Clean Architecture and '
+                      '9+ international payment gateways to native device features, mathematical calculation engines, and OTA pipelines.',
+                ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutQuad),
           const SizedBox(height: 64),
           
           LayoutBuilder(
@@ -46,34 +54,47 @@ class TechnicalCapabilitiesSection extends StatelessWidget {
 
   Widget _buildDesktopLayout() {
     final caps = CapabilitiesData.capabilities;
+    final row1 = Row(
+      children: [
+        Expanded(child: _CapabilitySurface(capability: caps[0], type: _SurfaceType.tablet)),
+        const SizedBox(width: 24),
+        Expanded(child: _CapabilitySurface(capability: caps[1], type: _SurfaceType.tablet)),
+      ],
+    );
+    final row2 = Row(
+      children: [
+        Expanded(child: _CapabilitySurface(capability: caps[2], type: _SurfaceType.pod)),
+        const SizedBox(width: 24),
+        Expanded(child: _CapabilitySurface(capability: caps[3], type: _SurfaceType.pod)),
+      ],
+    );
+    final row3 = Row(
+      children: [
+        Expanded(child: _CapabilitySurface(capability: caps[4], type: _SurfaceType.pill)),
+        const SizedBox(width: 24),
+        Expanded(child: _CapabilitySurface(capability: caps[5], type: _SurfaceType.pill)),
+      ],
+    );
+
+    if (Responsive.isTest) {
+      return Column(
+        children: [
+          row1,
+          const SizedBox(height: 24),
+          row2,
+          const SizedBox(height: 24),
+          row3,
+        ],
+      );
+    }
+
     return Column(
       children: [
-        // First 2: Wide Tablets
-        Row(
-          children: [
-            Expanded(child: _CapabilitySurface(capability: caps[0], type: _SurfaceType.tablet)),
-            const SizedBox(width: 24),
-            Expanded(child: _CapabilitySurface(capability: caps[1], type: _SurfaceType.tablet)),
-          ],
-        ).animate().fadeIn().slideY(begin: 0.1),
+        row1.animate().fadeIn().slideY(begin: 0.1),
         const SizedBox(height: 24),
-        // Next 2: Medium Pods
-        Row(
-          children: [
-            Expanded(child: _CapabilitySurface(capability: caps[2], type: _SurfaceType.pod)),
-            const SizedBox(width: 24),
-            Expanded(child: _CapabilitySurface(capability: caps[3], type: _SurfaceType.pod)),
-          ],
-        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+        row2.animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
         const SizedBox(height: 24),
-        // Last 2: Compact Pills
-        Row(
-          children: [
-            Expanded(child: _CapabilitySurface(capability: caps[4], type: _SurfaceType.pill)),
-            const SizedBox(width: 24),
-            Expanded(child: _CapabilitySurface(capability: caps[5], type: _SurfaceType.pill)),
-          ],
-        ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+        row3.animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
       ],
     );
   }
@@ -110,10 +131,11 @@ class _CapabilitySurfaceState extends State<_CapabilitySurface> {
     double borderRadius = widget.type == _SurfaceType.tablet ? 24 : (widget.type == _SurfaceType.pod ? 20 : 16);
     EdgeInsets padding = widget.type == _SurfaceType.tablet ? const EdgeInsets.all(40) : const EdgeInsets.all(24);
     
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
         transform: _isHovered ? Matrix4.translationValues(0, -4, 0) : Matrix4.identity(),
@@ -139,7 +161,8 @@ class _CapabilitySurfaceState extends State<_CapabilitySurface> {
         ),
         child: _buildContent(),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildContent() {

@@ -316,7 +316,7 @@ class _ContactSectionState extends State<ContactSection> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title.toUpperCase(),
+                      title,
                       style: AppTypography.mono(
                         size: 10,
                         color: AppColors.textMuted,

@@ -6,6 +6,7 @@ import '../../../core/constants/personal_info.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/brand_icons.dart';
+import '../../../core/utils/responsive.dart';
 
 class HeroPortraitCard extends StatefulWidget {
   const HeroPortraitCard({super.key});
@@ -17,7 +18,7 @@ class HeroPortraitCard extends StatefulWidget {
 class _HeroPortraitCardState extends State<HeroPortraitCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
-  Offset _pointerOffset = Offset.zero;
+  final ValueNotifier<Offset> _pointerNotifier = ValueNotifier<Offset>(Offset.zero);
   bool _isHovered = false;
 
   @override
@@ -28,10 +29,7 @@ class _HeroPortraitCardState extends State<HeroPortraitCard>
       duration: const Duration(seconds: 8),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().contains(
-      'TestWidgetsFlutterBinding',
-    );
-    if (!isTest) {
+    if (!Responsive.isTest) {
       _animController.repeat();
     }
   }
@@ -39,103 +37,120 @@ class _HeroPortraitCardState extends State<HeroPortraitCard>
   @override
   void dispose() {
     _animController.dispose();
+    _pointerNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() {
-        _isHovered = false;
-        _pointerOffset = Offset.zero;
-      }),
-      onHover: (event) {
-        final size = context.size;
-        if (size != null && size.width > 0 && size.height > 0) {
-          final x = (event.localPosition.dx / size.width - 0.5) * 2;
-          final y = (event.localPosition.dy / size.height - 0.5) * 2;
-          setState(() => _pointerOffset = Offset(x, y));
-        }
-      },
-      child: AnimatedBuilder(
-        animation: _animController,
-        builder: (context, child) {
-          final floatOffset = math.sin(_animController.value * 2 * math.pi) * 5;
-
-          return Transform.translate(
-            offset: Offset(0, floatOffset),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOut,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(_pointerOffset.dx * 0.04)
-                ..rotateX(-_pointerOffset.dy * 0.04),
-              alignment: Alignment.center,
-              child: child,
-            ),
-          );
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) {
+          setState(() => _isHovered = false);
+          _pointerNotifier.value = Offset.zero;
         },
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            // Ambient Rotating Glow Backdrop
-            Positioned(
-              top: -15,
-              right: -15,
-              child: Container(
-                width: 320,
-                height: 320,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      AppColors.primary.withValues(
-                        alpha: _isHovered ? 0.35 : 0.22,
-                      ),
-                      AppColors.accentCyan.withValues(alpha: 0.12),
-                      Colors.transparent,
-                    ],
+        onHover: (event) {
+          final size = context.size;
+          if (size != null && size.width > 0 && size.height > 0) {
+            final x = (event.localPosition.dx / size.width - 0.5) * 2;
+            final y = (event.localPosition.dy / size.height - 0.5) * 2;
+            _pointerNotifier.value = Offset(x, y);
+          }
+        },
+        child: AnimatedBuilder(
+          animation: _animController,
+          builder: (context, child) {
+            final floatOffset = math.sin(_animController.value * 2 * math.pi) * 5;
+
+            return Transform.translate(
+              offset: Offset(0, floatOffset),
+              child: ValueListenableBuilder<Offset>(
+                valueListenable: _pointerNotifier,
+                builder: (context, pointerOffset, contentChild) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOut,
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, 0.001)
+                      ..rotateY(pointerOffset.dx * 0.04)
+                      ..rotateX(-pointerOffset.dy * 0.04),
+                    alignment: Alignment.center,
+                    child: contentChild,
+                  );
+                },
+                child: child,
+              ),
+            );
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              // Ambient Rotating Glow Backdrop
+              Positioned(
+                top: -15,
+                right: -15,
+                child: Container(
+                  width: 320,
+                  height: 320,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.primary.withValues(
+                          alpha: _isHovered ? 0.35 : 0.22,
+                        ),
+                        AppColors.accentCyan.withValues(alpha: 0.12),
+                        Colors.transparent,
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Animated Gradient Border Ring (Cool Modern Aura)
-            AnimatedBuilder(
-              animation: _animController,
-              builder: (context, _) {
-                final angle = _animController.value * 2 * math.pi;
-                return Container(
-                  width: 332,
-                  height: 642, // Taller for phone aspect ratio
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(44),
-                    gradient: SweepGradient(
-                      transform: GradientRotation(angle),
-                      colors: [
-                        AppColors.primary.withValues(alpha: 0.8),
-                        AppColors.accentCyan.withValues(alpha: 0.8),
-                        AppColors.accentPurple.withValues(alpha: 0.8),
-                        AppColors.accentEmerald.withValues(alpha: 0.8),
-                        AppColors.primary.withValues(alpha: 0.8),
-                      ],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(
-                          alpha: _isHovered ? 0.4 : 0.2,
-                        ),
-                        blurRadius: 28,
-                        spreadRadius: _isHovered ? 2 : 0,
+              // Animated Gradient Border Ring (Cool Modern Aura)
+              Container(
+                width: 332,
+                height: 642,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(44),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(
+                        alpha: _isHovered ? 0.4 : 0.2,
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      blurRadius: 28,
+                      spreadRadius: _isHovered ? 2 : 0,
+                    ),
+                  ],
+                ),
+              ),
+              RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _animController,
+                  builder: (context, _) {
+                    final angle = _animController.value * 2 * math.pi;
+                    return Container(
+                      width: 332,
+                      height: 642, // Taller for phone aspect ratio
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(44),
+                        gradient: SweepGradient(
+                          transform: GradientRotation(angle),
+                          colors: [
+                            AppColors.primary.withValues(alpha: 0.8),
+                            AppColors.accentCyan.withValues(alpha: 0.8),
+                            AppColors.accentPurple.withValues(alpha: 0.8),
+                            AppColors.accentEmerald.withValues(alpha: 0.8),
+                            AppColors.primary.withValues(alpha: 0.8),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
 
             // Main Phone Device Frame
             Container(
@@ -159,6 +174,7 @@ class _HeroPortraitCardState extends State<HeroPortraitCard>
                         children: [
                           Image.asset(
                             PersonalInfo.profileImage,
+                            cacheWidth: 650,
                             fit: BoxFit.cover,
                             alignment: const Alignment(0, -0.4),
                             errorBuilder: (context, error, stackTrace) {
@@ -454,6 +470,7 @@ class _HeroPortraitCardState extends State<HeroPortraitCard>
           ],
         ),
       ),
+    ),
     );
   }
 }

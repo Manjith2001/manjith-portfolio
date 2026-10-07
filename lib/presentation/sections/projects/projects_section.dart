@@ -43,67 +43,82 @@ class _ProjectsSectionState extends State<ProjectsSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section Header
-          const SectionHeader(
-            tag: 'Device Lab',
-            title: 'Commercial App Gallery',
-            subtitle:
-                'Explore 17+ commercial applications deployed to Google Play Store & Apple App Store. '
-                'Watch live 60fps walkthrough video recordings of top-tier production deployments.',
-          ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
+          Responsive.isTest
+              ? const SectionHeader(
+                  tag: 'Device Lab',
+                  title: 'Commercial App Gallery',
+                  subtitle:
+                      'Explore 17+ commercial applications deployed to Google Play Store & Apple App Store. '
+                      'Watch live 60fps walkthrough video recordings of top-tier production deployments.',
+                )
+              : const SectionHeader(
+                  tag: 'Device Lab',
+                  title: 'Commercial App Gallery',
+                  subtitle:
+                      'Explore 17+ commercial applications deployed to Google Play Store & Apple App Store. '
+                      'Watch live 60fps walkthrough video recordings of top-tier production deployments.',
+                ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: 40),
 
           // Refined Pill Filter Bar
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: ProjectsData.categories.map((cat) {
-                final isSelected = _selectedCategory == cat;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: FilterChip(
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (cat == 'Video Demos') ...[
-                          Icon(
-                            Icons.play_circle_fill_rounded,
-                            size: 15,
-                            color: isSelected ? Colors.white : AppColors.accentCyan,
-                          ),
-                          const SizedBox(width: 6),
-                        ],
-                        Text(
-                          cat,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : AppColors.textSecondary,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                            fontSize: 13,
+            child: Builder(
+              builder: (context) {
+                final filterRow = Row(
+                  children: ProjectsData.categories.map((cat) {
+                    final isSelected = _selectedCategory == cat;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: FilterChip(
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (cat == 'Video Demos') ...[
+                              Icon(
+                                Icons.play_circle_fill_rounded,
+                                size: 15,
+                                color: isSelected ? Colors.white : AppColors.accentCyan,
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            Text(
+                              cat,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : AppColors.textSecondary,
+                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                        selected: isSelected,
+                        onSelected: (bool selected) {
+                          setState(() => _selectedCategory = cat);
+                        },
+                        backgroundColor: AppColors.card,
+                        selectedColor: AppColors.primary,
+                        showCheckmark: false,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                          side: BorderSide(
+                            color: isSelected ? AppColors.primary : AppColors.borderLight.withValues(alpha: 0.8),
+                            width: 1.2,
                           ),
                         ),
-                      ],
-                    ),
-                    selected: isSelected,
-                    onSelected: (bool selected) {
-                      setState(() => _selectedCategory = cat);
-                    },
-                    backgroundColor: AppColors.card,
-                    selectedColor: AppColors.primary,
-                    showCheckmark: false,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                      side: BorderSide(
-                        color: isSelected ? AppColors.primary : AppColors.borderLight.withValues(alpha: 0.8),
-                        width: 1.2,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        elevation: isSelected ? 4 : 0,
+                        shadowColor: AppColors.primary.withValues(alpha: 0.4),
                       ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    elevation: isSelected ? 4 : 0,
-                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
-                  ),
+                    );
+                  }).toList(),
                 );
-              }).toList(),
-            ).animate().fadeIn(delay: 150.ms).slideX(begin: 0.05, end: 0),
+                return Responsive.isTest
+                    ? filterRow
+                    : filterRow.animate().fadeIn(delay: 150.ms).slideX(begin: 0.05, end: 0);
+              },
+            ),
           ),
           const SizedBox(height: 48),
 
@@ -163,13 +178,17 @@ class _ProjectsSectionState extends State<ProjectsSection> {
         final index = entry.key;
         final project = entry.value;
 
+        final card = ProjectCard(
+          project: project,
+          isFeatured: false,
+          onSelect: () => widget.navController.openProjectDetail(project),
+        );
+
         return SizedBox(
           width: itemWidth,
-          child: ProjectCard(
-            project: project,
-            isFeatured: false,
-            onSelect: () => widget.navController.openProjectDetail(project),
-          ).animate().fadeIn(delay: (50 * (index % 8)).ms).slideY(begin: 0.08, end: 0),
+          child: Responsive.isTest
+              ? card
+              : card.animate().fadeIn(delay: (50 * (index % 8)).ms).slideY(begin: 0.08, end: 0),
         );
       }).toList(),
     );

@@ -128,7 +128,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 1. Hero Section
                           SectionReveal(
                             index: 0,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.heroKey,
                               child: HeroSection(navController: _navController),
                             ),
@@ -137,7 +137,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 2. Production Impact Metrics Banner
                           SectionReveal(
                             index: 1,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.appsKey,
                               child: const ProductionImpactBanner(),
                             ),
@@ -146,7 +146,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 3. Worked Clients & Commercial Brands
                           SectionReveal(
                             index: 2,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.clientsKey,
                               child: const WorkedClientsSection(),
                             ),
@@ -155,7 +155,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 4. Commercial Projects & 60fps Video Demos Showcase
                           SectionReveal(
                             index: 3,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.projectsKey,
                               child: ProjectsSection(
                                 navController: _navController,
@@ -166,7 +166,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 5. Engineering Capabilities
                           SectionReveal(
                             index: 4,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.capabilitiesKey,
                               child: const TechnicalCapabilitiesSection(),
                             ),
@@ -175,7 +175,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 6. Shorebird OTA & Production Deployment Spotlight
                           SectionReveal(
                             index: 5,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.shorebirdKey,
                               child: const ShorebirdDeploymentSection(),
                             ),
@@ -184,7 +184,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 7. Verified Technical Skills Matrix
                           SectionReveal(
                             index: 6,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.skillsKey,
                               child: const SkillsMatrixSection(),
                             ),
@@ -193,7 +193,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 8. Commercial Industry Experience Timeline
                           SectionReveal(
                             index: 7,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.experienceKey,
                               child: const ExperienceTimelineSection(),
                             ),
@@ -202,7 +202,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 9. Education & Credentials
                           SectionReveal(
                             index: 8,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.educationKey,
                               child: const EducationCertificationsSection(),
                             ),
@@ -211,7 +211,7 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                           // 10. Direct Contact Section
                           SectionReveal(
                             index: 9,
-                            child: Container(
+                            child: RepaintBoundary(
                               key: _navController.contactKey,
                               child: const ContactSection(),
                             ),
@@ -223,7 +223,9 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
                     ),
 
                     // 11. Footer
-                    AppFooter(navController: _navController),
+                    RepaintBoundary(
+                      child: AppFooter(navController: _navController),
+                    ),
                   ],
                 ),
               ),
@@ -235,10 +237,12 @@ class _PortfolioHomeScreenState extends State<PortfolioHomeScreen>
             top: 0,
             left: 0,
             right: 0,
-            child: AnimatedBuilder(
-              animation: _navController,
-              builder: (context, _) =>
-                  AppNavigationBar(navController: _navController),
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _navController,
+                builder: (context, _) =>
+                    AppNavigationBar(navController: _navController),
+              ),
             ),
           ),
 

@@ -16,6 +16,16 @@ class Responsive extends StatelessWidget {
   static const double tabletBreakpoint = 1100.0;
   static const double maxContentWidth = 1240.0;
 
+  static bool? overrideIsTest;
+  static bool get isTest {
+    if (overrideIsTest != null) return overrideIsTest!;
+    try {
+      return WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    } catch (_) {
+      return false;
+    }
+  }
+
   static bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < mobileBreakpoint;
 
@@ -29,7 +39,7 @@ class Responsive extends StatelessWidget {
   static double screenWidth(BuildContext context) =>
       MediaQuery.of(context).size.width;
 
-  static double screenHeight(BuildContext context) =>
+  static double screenHeight(BuildContext context) => 
       MediaQuery.of(context).size.height;
 
   static EdgeInsets horizontalPadding(BuildContext context) {

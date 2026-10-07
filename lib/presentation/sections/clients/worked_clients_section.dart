@@ -20,13 +20,21 @@ class WorkedClientsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            tag: 'Client Ecosystem',
-            title: 'Premium Brand Collaborations',
-            subtitle:
-                'Delivering scalable production mobile engineering for international clients across '
-                'Qatar, Saudi Arabia, Kuwait, UAE, Singapore, Malaysia, and India.',
-          ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
+          Responsive.isTest
+              ? const SectionHeader(
+                  tag: 'Client Ecosystem',
+                  title: 'Worked Clients & Commercial Brands',
+                  subtitle:
+                      'Delivering scalable production mobile engineering for international clients across '
+                      'Qatar, Saudi Arabia, Kuwait, UAE, Singapore, Malaysia, and India.',
+                )
+              : const SectionHeader(
+                  tag: 'Client Ecosystem',
+                  title: 'Worked Clients & Commercial Brands',
+                  subtitle:
+                      'Delivering scalable production mobile engineering for international clients across '
+                      'Qatar, Saudi Arabia, Kuwait, UAE, Singapore, Malaysia, and India.',
+                ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: 48),
 
           LayoutBuilder(
@@ -57,12 +65,15 @@ class WorkedClientsSection extends StatelessWidget {
         final index = entry.key;
         final client = entry.value;
 
+        final pod = _ClientPodCard(client: client);
         return SizedBox(
           width: itemWidth,
-          child: _ClientPodCard(client: client)
-              .animate()
-              .fadeIn(delay: (60 * index).ms)
-              .slideY(begin: 0.08, end: 0),
+          child: Responsive.isTest
+              ? pod
+              : pod
+                  .animate()
+                  .fadeIn(delay: (60 * index).ms)
+                  .slideY(begin: 0.08, end: 0),
         );
       }).toList(),
     );
@@ -85,10 +96,11 @@ class _ClientPodCardState extends State<_ClientPodCard> {
   Widget build(BuildContext context) {
     final client = widget.client;
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
         transform: _isHovered ? Matrix4.translationValues(0, -4, 0) : Matrix4.identity(),
@@ -259,6 +271,7 @@ class _ClientPodCardState extends State<_ClientPodCard> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }

@@ -1,8 +1,16 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+
+import '../../core/utils/responsive.dart';
+
+class _HexGridCache {
+  ui.Picture? picture;
+  double lastProgress = -1.0;
+}
 
 class AmbientSpaceBackground extends StatefulWidget {
   final ScrollController? scrollController;
@@ -21,7 +29,8 @@ class AmbientSpaceBackground extends StatefulWidget {
 class _AmbientSpaceBackgroundState extends State<AmbientSpaceBackground>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  Offset? _cursorPosition;
+  final ValueNotifier<Offset?> _cursorNotifier = ValueNotifier<Offset?>(null);
+  final _HexGridCache _cache = _HexGridCache();
 
   @override
   void initState() {
@@ -32,10 +41,7 @@ class _AmbientSpaceBackgroundState extends State<AmbientSpaceBackground>
     );
 
     // Only repeat indefinitely when not running in headless automated widget tests
-    final isTest = WidgetsBinding.instance.runtimeType.toString().contains(
-      'TestWidgetsFlutterBinding',
-    );
-    if (!isTest) {
+    if (!Responsive.isTest) {
       _controller.repeat();
     }
   }
@@ -43,6 +49,7 @@ class _AmbientSpaceBackgroundState extends State<AmbientSpaceBackground>
   @override
   void dispose() {
     _controller.dispose();
+    _cursorNotifier.dispose();
     super.dispose();
   }
 
@@ -50,57 +57,60 @@ class _AmbientSpaceBackgroundState extends State<AmbientSpaceBackground>
   Widget build(BuildContext context) {
     return Listener(
       onPointerHover: (event) {
-        setState(() => _cursorPosition = event.localPosition);
+        _cursorNotifier.value = event.localPosition;
       },
       onPointerMove: (event) {
-        setState(() => _cursorPosition = event.localPosition);
+        _cursorNotifier.value = event.localPosition;
       },
       onPointerDown: (event) {
-        setState(() => _cursorPosition = event.localPosition);
+        _cursorNotifier.value = event.localPosition;
       },
       child: Stack(
         children: [
           // 1. Solid deep charcoal foundation
           Container(color: const Color(0xFF0A0A0F)),
 
-          // 2. Parallax Wallpaper Layer
+          // 2. Parallax Wallpaper Layer (RepaintBoundary isolated)
           Positioned.fill(
-            child: AnimatedBuilder(
-              animation: widget.scrollController ?? _controller,
-              builder: (context, _) {
-                double scrollOffset = 0.0;
-                if (widget.scrollController != null &&
-                    widget.scrollController!.hasClients) {
-                  scrollOffset = widget.scrollController!.offset;
-                }
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: widget.scrollController ?? _controller,
+                builder: (context, _) {
+                  double scrollOffset = 0.0;
+                  if (widget.scrollController != null &&
+                      widget.scrollController!.hasClients) {
+                    scrollOffset = widget.scrollController!.offset;
+                  }
 
-                // Parallax shift factor: moves at 12% of scroll speed
-                final parallaxOffset = -(scrollOffset * 0.12).clamp(
-                  -600.0,
-                  0.0,
-                );
+                  // Parallax shift factor: moves at 12% of scroll speed
+                  final parallaxOffset = -(scrollOffset * 0.12).clamp(
+                    -600.0,
+                    0.0,
+                  );
 
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final targetHeight = constraints.maxHeight + 400.0;
-                    return Transform.translate(
-                      offset: Offset(0, parallaxOffset),
-                      child: SizedBox(
-                        width: constraints.maxWidth,
-                        height: targetHeight,
-                        child: Image.asset(
-                          'assets/images/portfolio_bg.jpg',
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const SizedBox.shrink();
-                          },
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final targetHeight = constraints.maxHeight + 400.0;
+                      return Transform.translate(
+                        offset: Offset(0, parallaxOffset),
+                        child: SizedBox(
+                          width: constraints.maxWidth,
+                          height: targetHeight,
+                          child: Image.asset(
+                            'assets/images/portfolio_bg.jpg',
+                            cacheWidth: 1920,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const SizedBox.shrink();
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
 
@@ -143,13 +153,14 @@ class _AmbientSpaceBackgroundState extends State<AmbientSpaceBackground>
           Positioned.fill(
             child: RepaintBoundary(
               child: AnimatedBuilder(
-                animation: _controller,
+                animation: Listenable.merge([_controller, _cursorNotifier]),
                 builder: (context, _) {
                   return CustomPaint(
                     size: Size.infinite,
                     painter: _RedHexAuraPainter(
                       progress: _controller.value,
-                      cursorPosition: _cursorPosition,
+                      cursorPosition: _cursorNotifier.value,
+                      cache: _cache,
                     ),
                   );
                 },
@@ -168,8 +179,9 @@ class _AmbientSpaceBackgroundState extends State<AmbientSpaceBackground>
 class _RedHexAuraPainter extends CustomPainter {
   final double progress;
   final Offset? cursorPosition;
+  final _HexGridCache cache;
 
-  _RedHexAuraPainter({required this.progress, this.cursorPosition});
+  _RedHexAuraPainter({required this.progress, this.cursorPosition, required this.cache});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -230,25 +242,36 @@ class _RedHexAuraPainter extends CustomPainter {
       canvas.drawCircle(cursorPosition!, spotlightRadius, spotlightPaint);
     }
 
-    // 4. Subtle Hexagonal Grid Pattern (red-tinted)
-    _drawHexGrid(canvas, size, angle);
+    // 4. Subtle Hexagonal Grid Pattern and Dot Matrix (Cached)
+    if ((progress - cache.lastProgress).abs() < 0.02 && cache.picture != null) {
+      canvas.drawPicture(cache.picture!);
+    } else {
+      final recorder = ui.PictureRecorder();
+      final cacheCanvas = Canvas(recorder);
 
-    // 5. Subtle Ambient Particle / Dot Matrix Accent
-    final dotPaint = Paint()
-      ..color = const Color(0xFF64748B).withValues(alpha: 0.06)
-      ..style = PaintingStyle.fill;
+      _drawHexGrid(cacheCanvas, size, angle);
 
-    const spacing = 46.0;
-    final cols = (width / spacing).ceil();
-    final rows = (height / spacing).ceil();
+      // 5. Subtle Ambient Particle / Dot Matrix Accent
+      final dotPaint = Paint()
+        ..color = const Color(0xFF64748B).withValues(alpha: 0.06)
+        ..style = PaintingStyle.fill;
 
-    for (int i = 0; i <= cols; i++) {
-      for (int j = 0; j <= rows; j++) {
-        final wave = math.sin((i * 0.3) + (j * 0.3) + angle);
-        if (wave > 0.55) {
-          canvas.drawCircle(Offset(i * spacing, j * spacing), 0.85, dotPaint);
+      const spacing = 46.0;
+      final cols = (width / spacing).ceil();
+      final rows = (height / spacing).ceil();
+
+      for (int i = 0; i <= cols; i++) {
+        for (int j = 0; j <= rows; j++) {
+          final wave = math.sin((i * 0.3) + (j * 0.3) + angle);
+          if (wave > 0.55) {
+            cacheCanvas.drawCircle(Offset(i * spacing, j * spacing), 0.85, dotPaint);
+          }
         }
       }
+
+      cache.picture = recorder.endRecording();
+      cache.lastProgress = progress;
+      canvas.drawPicture(cache.picture!);
     }
   }
 

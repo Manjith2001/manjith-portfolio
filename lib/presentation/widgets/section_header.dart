@@ -57,13 +57,16 @@ class SectionHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                tag.toUpperCase(),
-                style: AppTypography.mono(
-                  color: AppColors.primaryLight,
-                  size: 11,
-                  weight: FontWeight.w700,
-                ).copyWith(letterSpacing: 1.2),
+              Flexible(
+                child: Text(
+                  tag.toUpperCase(),
+                  style: AppTypography.mono(
+                    color: AppColors.primaryLight,
+                    size: 11,
+                    weight: FontWeight.w700,
+                  ).copyWith(letterSpacing: 1.2),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -119,23 +122,26 @@ class SectionHeader extends StatelessWidget {
 
     for (int i = 0; i < words.length; i++) {
       final word = words[i];
+      final isLast = i == words.length - 1;
+      final text = isLast ? word : '$word ';
+
       if (word == '&' || word.toLowerCase() == 'and') {
-        spans.add(TextSpan(text: '$word ', style: baseStyle));
+        spans.add(TextSpan(text: text, style: baseStyle));
         highlightNext = true;
       } else if (highlightNext || (i == words.length - 1 && words.length > 2 && !title.contains('&'))) {
         spans.add(TextSpan(
-          text: '$word ',
+          text: text,
           style: baseStyle.copyWith(color: AppColors.primary),
         ));
         highlightNext = false;
       } else {
-        spans.add(TextSpan(text: '$word ', style: baseStyle));
+        spans.add(TextSpan(text: text, style: baseStyle));
       }
     }
 
-    return RichText(
+    return Text.rich(
+      TextSpan(children: spans),
       textAlign: isCenter ? TextAlign.center : TextAlign.start,
-      text: TextSpan(children: spans),
     );
   }
 }

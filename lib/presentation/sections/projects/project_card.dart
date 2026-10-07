@@ -28,26 +28,28 @@ class _ProjectCardState extends State<ProjectCard> {
   Widget build(BuildContext context) {
     final project = widget.project;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: widget.onSelect,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          transform: _isHovered ? Matrix4.translationValues(0, -6, 0) : Matrix4.identity(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Phone Device Frame (Symmetric, regular proportion)
-              _buildDeviceFrame(project),
-              const SizedBox(height: 16),
-              // Metadata Below
-              _buildMetadata(project),
-            ],
+    return RepaintBoundary(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTap: widget.onSelect,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            transform: _isHovered ? Matrix4.translationValues(0, -6, 0) : Matrix4.identity(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Phone Device Frame (Symmetric, regular proportion)
+                _buildDeviceFrame(project),
+                const SizedBox(height: 16),
+                // Metadata Below
+                _buildMetadata(project),
+              ],
+            ),
           ),
         ),
       ),
@@ -57,9 +59,12 @@ class _ProjectCardState extends State<ProjectCard> {
   Widget _buildDeviceFrame(ProjectModel project) {
     final frameColor = _isHovered ? project.accentColor : AppColors.borderLight;
 
-    return AspectRatio(
-      aspectRatio: 9 / 18.5, // Standard modern handheld phone aspect ratio
-      child: AnimatedContainer(
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 440),
+        child: AspectRatio(
+          aspectRatio: 9 / 18.5, // Standard modern handheld phone aspect ratio
+          child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         decoration: BoxDecoration(
           color: const Color(0xFF0F0F14),
@@ -153,9 +158,11 @@ class _ProjectCardState extends State<ProjectCard> {
               ],
             ),
           ),
+          ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildHardwareOverlay() {
@@ -233,15 +240,19 @@ class _ProjectCardState extends State<ProjectCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: Colors.white.withValues(alpha: 0.7)),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: project.accentColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Text(
-                    project.category.toUpperCase(),
-                    style: AppTypography.mono(size: 8, color: project.accentColor, weight: FontWeight.w700),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: project.accentColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Text(
+                      project.category.toUpperCase(),
+                      style: AppTypography.mono(size: 8, color: project.accentColor, weight: FontWeight.w700),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   ),
                 ),
                 Icon(Icons.more_horiz_rounded, size: 16, color: Colors.white.withValues(alpha: 0.7)),
@@ -370,7 +381,11 @@ class _ProjectCardState extends State<ProjectCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Category and Video Tag
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 6,
+            runSpacing: 6,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -388,7 +403,6 @@ class _ProjectCardState extends State<ProjectCard> {
                   ),
                 ),
               ),
-              const Spacer(),
               if (project.hasVideo)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -403,7 +417,7 @@ class _ProjectCardState extends State<ProjectCard> {
                       const Icon(Icons.play_circle_fill_rounded, size: 11, color: AppColors.accentCyan),
                       const SizedBox(width: 4),
                       Text(
-                        'DEMO',
+                        'Video Demo',
                         style: AppTypography.mono(
                           size: 9,
                           weight: FontWeight.w700,
@@ -428,29 +442,60 @@ class _ProjectCardState extends State<ProjectCard> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          if (project.clientName != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Client: ${project.clientName}',
+              style: AppTypography.mono(
+                size: 11,
+                color: AppColors.textMuted,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
           const SizedBox(height: 8),
 
           // Technologies Pills (compact)
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: project.technologies.take(3).map((tech) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: AppColors.borderLight.withValues(alpha: 0.7)),
-                ),
-                child: Text(
-                  tech,
-                  style: AppTypography.bodySmall(
-                    size: 11,
-                    color: AppColors.textSecondary,
+            children: [
+              if (project.paymentGateways.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: project.accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(color: project.accentColor.withValues(alpha: 0.35)),
+                  ),
+                  child: Text(
+                    project.paymentGateways.first,
+                    style: AppTypography.mono(
+                      size: 11,
+                      weight: FontWeight.w600,
+                      color: project.accentColor,
+                    ),
                   ),
                 ),
-              );
-            }).toList(),
+              ...project.technologies.take(3).map((tech) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(color: AppColors.borderLight.withValues(alpha: 0.7)),
+                  ),
+                  child: Text(
+                    tech,
+                    style: AppTypography.bodySmall(
+                      size: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                );
+              }),
+            ],
           ),
         ],
       ),

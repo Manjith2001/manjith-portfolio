@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -45,6 +45,32 @@ class _CursorParticle {
   }) : life = maxLife;
 }
 
+class _CursorPaintData {
+  final Offset? followerPosition;
+  final Offset? dotPosition;
+  final double opacity;
+  final bool isPointerDown;
+  final double speed;
+  final double angle;
+  final double rotationAngle;
+  final List<_CursorParticle> particles;
+  final double clickWaveProgress;
+  final Offset? clickWaveOrigin;
+
+  _CursorPaintData({
+    required this.followerPosition,
+    required this.dotPosition,
+    required this.opacity,
+    required this.isPointerDown,
+    required this.speed,
+    required this.angle,
+    required this.rotationAngle,
+    required this.particles,
+    required this.clickWaveProgress,
+    required this.clickWaveOrigin,
+  });
+}
+
 /// Smooth Hardware-Accelerated Interactive Animated Cursor Follower.
 ///
 /// Supports both Mouse Pointer movement and Touch screen gestures:
@@ -70,6 +96,21 @@ class _SmoothCursorFollowerState extends State<SmoothCursorFollower>
     with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   final ValueNotifier<Offset?> _cursorNotifier = ValueNotifier<Offset?>(null);
+
+  late final ValueNotifier<_CursorPaintData> _paintDataNotifier = ValueNotifier(
+    _CursorPaintData(
+      followerPosition: null,
+      dotPosition: null,
+      opacity: 0.0,
+      isPointerDown: false,
+      speed: 0.0,
+      angle: 0.0,
+      rotationAngle: 0.0,
+      particles: const [],
+      clickWaveProgress: 0.0,
+      clickWaveOrigin: null,
+    ),
+  );
 
   Offset? _targetPosition;
   Offset? _followerPosition;
@@ -111,6 +152,7 @@ class _SmoothCursorFollowerState extends State<SmoothCursorFollower>
     _isDisposed = true;
     _ticker.dispose();
     _cursorNotifier.dispose();
+    _paintDataNotifier.dispose();
     super.dispose();
   }
 
@@ -220,7 +262,18 @@ class _SmoothCursorFollowerState extends State<SmoothCursorFollower>
     }
 
     if (needsRepaint) {
-      setState(() {});
+      _paintDataNotifier.value = _CursorPaintData(
+        followerPosition: _followerPosition,
+        dotPosition: _dotPosition,
+        opacity: _opacity,
+        isPointerDown: _isPointerDown,
+        speed: _speed,
+        angle: _angle,
+        rotationAngle: _rotationAngle,
+        particles: List.of(_particles),
+        clickWaveProgress: _clickWaveProgress,
+        clickWaveOrigin: _clickWaveOrigin,
+      );
     }
   }
 
@@ -289,28 +342,35 @@ class _SmoothCursorFollowerState extends State<SmoothCursorFollower>
               widget.child,
 
               // 2. Smooth Animated Cursor & Touch Layer - 100% non-blocking
-              if (_opacity > 0.001 || _particles.isNotEmpty || _clickWaveProgress > 0)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: RepaintBoundary(
-                      child: CustomPaint(
-                        size: Size.infinite,
-                        painter: _SmoothCursorPainter(
-                          followerPosition: _followerPosition,
-                          dotPosition: _dotPosition,
-                          opacity: _opacity,
-                          isPointerDown: _isPointerDown,
-                          speed: _speed,
-                          angle: _angle,
-                          rotationAngle: _rotationAngle,
-                          particles: _particles,
-                          clickWaveProgress: _clickWaveProgress,
-                          clickWaveOrigin: _clickWaveOrigin,
+              ValueListenableBuilder<_CursorPaintData>(
+                valueListenable: _paintDataNotifier,
+                builder: (context, data, child) {
+                  if (data.opacity <= 0.001 && data.particles.isEmpty && data.clickWaveProgress <= 0) {
+                    return const SizedBox.shrink();
+                  }
+                  return Positioned.fill(
+                    child: IgnorePointer(
+                      child: RepaintBoundary(
+                        child: CustomPaint(
+                          size: Size.infinite,
+                          painter: _SmoothCursorPainter(
+                            followerPosition: data.followerPosition,
+                            dotPosition: data.dotPosition,
+                            opacity: data.opacity,
+                            isPointerDown: data.isPointerDown,
+                            speed: data.speed,
+                            angle: data.angle,
+                            rotationAngle: data.rotationAngle,
+                            particles: data.particles,
+                            clickWaveProgress: data.clickWaveProgress,
+                            clickWaveOrigin: data.clickWaveOrigin,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
+              ),
             ],
           ),
         ),

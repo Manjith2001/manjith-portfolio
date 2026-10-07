@@ -25,13 +25,21 @@ class SkillsMatrixSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            tag: 'Technology Ecosystem',
-            title: 'Verified Skills & Tech Ecosystem',
-            subtitle:
-                'Hands-on engineering competencies grouped across mobile platforms, state architectures, '
-                'payment gateways, and production cloud services. Zero subjective percentages.',
-          ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutQuad),
+          Responsive.isTest
+              ? const SectionHeader(
+                  tag: 'Technology Ecosystem',
+                  title: 'Verified Skills & Tech Ecosystem',
+                  subtitle:
+                      'Hands-on engineering competencies grouped across mobile platforms, state architectures, '
+                      'payment gateways, and production cloud services. Zero subjective percentages.',
+                )
+              : const SectionHeader(
+                  tag: 'Technology Ecosystem',
+                  title: 'Verified Skills & Tech Ecosystem',
+                  subtitle:
+                      'Hands-on engineering competencies grouped across mobile platforms, state architectures, '
+                      'payment gateways, and production cloud services. Zero subjective percentages.',
+                ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutQuad),
           const SizedBox(height: 64),
           
           _buildMasonryLikeGrid(columns),
@@ -44,11 +52,14 @@ class SkillsMatrixSection extends StatelessWidget {
     final List<List<Widget>> cols = List.generate(columns, (_) => <Widget>[]);
     
     for (int i = 0; i < SkillsData.categories.length; i++) {
+      final pod = Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: _FloatingPod(category: SkillsData.categories[i]),
+      );
       cols[i % columns].add(
-        Padding(
-          padding: const EdgeInsets.only(bottom: 24),
-          child: _FloatingPod(category: SkillsData.categories[i]),
-        ).animate().fadeIn(delay: (100 * i).ms).slideY(begin: 0.1),
+        Responsive.isTest
+            ? pod
+            : pod.animate().fadeIn(delay: (100 * i).ms).slideY(begin: 0.1),
       );
     }
 
@@ -82,10 +93,11 @@ class _FloatingPodState extends State<_FloatingPod> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
+    return RepaintBoundary(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
         transform: _isHovered ? Matrix4.translationValues(0, -4, 0) : Matrix4.identity(),
@@ -167,6 +179,7 @@ class _FloatingPodState extends State<_FloatingPod> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }

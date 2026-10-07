@@ -77,50 +77,57 @@ class ProductionImpactBanner extends StatelessWidget {
                     ),
                   ],
                 )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: _buildMetricPod(
-                        PersonalInfo.productionAppsCount,
-                        'Production Apps',
-                        'Google Play & App Store',
-                        Icons.rocket_launch_rounded,
-                        AppColors.primaryLight,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildMetricPod(
-                        '${PersonalInfo.yearsOfExperience} Yrs',
-                        'Software Experience',
-                        'Mobile & Frontend',
-                        Icons.work_history_rounded,
-                        AppColors.accentCyan,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildMetricPod(
-                        PersonalInfo.paymentGatewaysCount,
-                        'Payment Gateways',
-                        'International & Regional',
-                        Icons.payments_rounded,
-                        AppColors.accentEmerald,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildMetricPod(
-                        '17 Apps',
-                        'Shorebird OTA',
-                        'Instant Hot Patches',
-                        Icons.bolt_rounded,
-                        AppColors.accentAmber,
-                      ),
-                    ),
-                  ],
-                ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2, end: 0),
+              : Builder(
+                  builder: (context) {
+                    final metricRow = Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: _buildMetricPod(
+                            PersonalInfo.productionAppsCount,
+                            'Production Apps',
+                            'Google Play & App Store',
+                            Icons.rocket_launch_rounded,
+                            AppColors.primaryLight,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildMetricPod(
+                            '${PersonalInfo.yearsOfExperience} Yrs',
+                            'Software Experience',
+                            'Mobile & Frontend',
+                            Icons.work_history_rounded,
+                            AppColors.accentCyan,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildMetricPod(
+                            PersonalInfo.paymentGatewaysCount,
+                            'Payment Gateways',
+                            'International & Regional',
+                            Icons.payments_rounded,
+                            AppColors.accentEmerald,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildMetricPod(
+                            '17 Apps',
+                            'Shorebird OTA',
+                            'Instant Hot Patches',
+                            Icons.bolt_rounded,
+                            AppColors.accentAmber,
+                          ),
+                        ),
+                      ],
+                    );
+                    return Responsive.isTest
+                        ? metricRow
+                        : metricRow.animate().fadeIn(duration: 500.ms).slideY(begin: 0.2, end: 0);
+                  },
+                ),
 
           const SizedBox(height: 32),
 
@@ -146,27 +153,34 @@ class ProductionImpactBanner extends StatelessWidget {
                     ),
                   ],
                 )
-              : Row(
-                  children: [
-                    Text(
-                      'VERIFIED PRODUCTION ROSTER:',
-                      style: AppTypography.mono(
-                        size: 11,
-                        color: AppColors.textMuted,
-                        weight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: _buildAppBadges(),
+              : Builder(
+                  builder: (context) {
+                    final rosterRow = Row(
+                      children: [
+                        Text(
+                          'VERIFIED PRODUCTION ROSTER:',
+                          style: AppTypography.mono(
+                            size: 11,
+                            color: AppColors.textMuted,
+                            weight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                ).animate().fadeIn(duration: 600.ms, delay: 200.ms),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: _buildAppBadges(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                    return Responsive.isTest
+                        ? rosterRow
+                        : rosterRow.animate().fadeIn(duration: 600.ms, delay: 200.ms);
+                  },
+                ),
         ],
       ),
     );
