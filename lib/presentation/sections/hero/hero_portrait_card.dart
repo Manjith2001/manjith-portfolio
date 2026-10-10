@@ -209,53 +209,6 @@ class _HeroPortraitCardState extends State<HeroPortraitCard>
                             ),
                           ),
 
-                          // Clean Glassmorphic Status Pill at Bottom of Photo
-                          Positioned(
-                            bottom: 32, // Above home indicator
-                            left: 16,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface.withValues(alpha: 0.88),
-                                borderRadius: BorderRadius.circular(20), // More pill-like
-                                border: Border.all(
-                                  color: AppColors.borderLight.withValues(alpha: 0.7),
-                                  width: 1,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.4),
-                                    blurRadius: 10,
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.accentEmerald,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Flutter Mobile Lead',
-                                    style: AppTypography.mono(
-                                      size: 11,
-                                      color: Colors.white,
-                                      weight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
